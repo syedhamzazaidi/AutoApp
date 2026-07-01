@@ -23,7 +23,7 @@ This document defines **how to implement** the platform described in the archite
 Use a **pnpm monorepo** with Turborepo for task orchestration. A single repo keeps the frozen scaffold, block registry, agent core, and platform UI in sync — critical because block contracts must match activation recipes and protected paths.
 
 ```
-endian/
+project-root/
 ├── apps/
 │   ├── scaffold/                 # Canonical generated-app template (Tier 1–3 blocks)
 │   └── platform/                 # Lovable-style builder UI (Phase 4+, simplified POC)
@@ -42,7 +42,7 @@ endian/
 
 **Why not a single flat app?** The scaffold must be **exportable** as a standalone repo (GitHub export path). Keeping it in `apps/scaffold` with a `pnpm export:scaffold` script (copy + strip monorepo refs) mirrors the Lovable export model without maintaining two repos during POC.
 
-**Why not separate repos yet?** POC velocity. Split to `endian-scaffold` + `endian-platform` only when external contributors need scaffold-only access.
+**Why not separate repos yet?** POC velocity. Split to separate `scaffold` + `platform` repos only when external contributors need scaffold-only access.
 
 ### What gets built vs docs-only (POC)
 
