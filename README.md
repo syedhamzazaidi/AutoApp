@@ -44,7 +44,7 @@ supabase start
 supabase db reset
 
 # Copy env vars from supabase status output
-cp .env.example .env
+cp .env.sample apps/scaffold/.env
 # Fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
 ```
 
