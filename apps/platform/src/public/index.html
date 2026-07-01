@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lovable POC Platform</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: system-ui, sans-serif; height: 100vh; display: flex; flex-direction: column; background: #0a0a0a; color: #fafafa; }
+      header { padding: 1rem 1.5rem; border-bottom: 1px solid #27272a; display: flex; justify-content: space-between; align-items: center; }
+      main { flex: 1; display: grid; grid-template-columns: 280px 1fr 1fr; overflow: hidden; }
+      .panel { border-right: 1px solid #27272a; overflow: auto; padding: 1rem; }
+      .panel:last-child { border-right: none; }
+      h2 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: #a1a1aa; margin-bottom: 1rem; }
+      #messages { display: flex; flex-direction: column; gap: 0.75rem; }
+      .msg { padding: 0.75rem; border-radius: 0.5rem; font-size: 0.875rem; }
+      .msg.user { background: #27272a; align-self: flex-end; max-width: 85%; }
+      .msg.assistant { background: #18181b; border: 1px solid #27272a; }
+      #input-area { padding: 1rem; border-top: 1px solid #27272a; display: flex; gap: 0.5rem; }
+      #prompt { flex: 1; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #27272a; background: #18181b; color: #fafafa; font-size: 0.875rem; }
+      button { padding: 0.75rem 1.25rem; border-radius: 0.5rem; border: none; background: #16a34a; color: white; cursor: pointer; font-weight: 500; }
+      button:hover { background: #15803d; }
+      button.secondary { background: #27272a; }
+      iframe { width: 100%; height: calc(100% - 2rem); border: 1px solid #27272a; border-radius: 0.5rem; background: white; }
+      .file-tree { font-family: monospace; font-size: 0.75rem; color: #a1a1aa; line-height: 1.6; }
+      label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #a1a1aa; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Lovable POC Platform</strong>
+      <span style="color:#a1a1aa;font-size:0.875rem">Chat → Plan → Build → Preview</span>
+    </header>
+    <main>
+      <div class="panel">
+        <h2>Project</h2>
+        <div class="file-tree">
+          apps/scaffold/<br>
+          ├── src/pages/<br>
+          ├── src/services/<br>
+          ├── src/features/<br>
+          └── supabase/<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;├── migrations/<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;└── functions/
+        </div>
+      </div>
+      <div class="panel" style="display:flex;flex-direction:column">
+        <h2>Chat</h2>
+        <div id="messages" style="flex:1;overflow:auto"></div>
+        <div id="input-area">
+          <input id="prompt" placeholder="Add a plants page that lists my plants..." />
+          <label><input type="checkbox" id="planMode" /> Plan</label>
+          <button id="send">Send</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Preview</h2>
+        <iframe src="http://localhost:5173" title="App preview"></iframe>
+      </div>
+    </main>
+    <script>
+      const messagesEl = document.getElementById('messages');
+      const promptEl = document.getElementById('prompt');
+      const planModeEl = document.getElementById('planMode');
+
+      async function loadMessages() {
+        const res = await fetch('/api/messages');
+        const { messages } = await res.json();
+        messagesEl.innerHTML = messages.map(m =>
+          `<div class="msg ${m.role}">${m.content.replace(/</g,'&lt;')}</div>`
+        ).join('');
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+
+      document.getElementById('send').addEventListener('click', async () => {
+        const prompt = promptEl.value.trim();
+        if (!prompt) return;
+        promptEl.value = '';
+        await fetch('/api/agent-turn', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, planMode: planModeEl.checked }),
+        });
+        await loadMessages();
+      });
+
+      promptEl.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('send').click(); });
+      loadMessages();
+    </script>
+  </body>
+</html>

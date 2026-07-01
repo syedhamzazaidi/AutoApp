@@ -1,49 +1,13 @@
-# Dependencies
-node_modules/
-.pnpm-store/
-
-# Build outputs
-dist/
-build/
-.next/
-out/
-.turbo/
-
-# Environment and secrets
+node_modules
+dist
+.turbo
 .env
-.env.*
-!.env.example
-*.pem
-credentials.json
-*.key
-
-# Logs and caches
-logs/
-*.log
-npm-debug.log*
-pnpm-debug.log*
-.cache/
-.parcel-cache/
-
-# OS and editors
+.env.local
+*.local
 .DS_Store
-Thumbs.db
-.idea/
-.vscode/*
-!.vscode/extensions.json
-
-# Testing and coverage
-coverage/
-.nyc_output/
-
-# Deployment
-.vercel/
-.netlify/
-
-# Supabase
-supabase/.temp/
-supabase/.branches/
-
-# Misc
-*.tsbuildinfo
-.eslintcache
+coverage
+playwright-report
+test-results
+.vercel
+supabase/.branches
+supabase/.temp

@@ -1,0 +1,25 @@
+{
+  "name": "endian",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
+    "blocks:validate-manifest": "pnpm --filter @endian/block-registry validate",
+    "blocks:activate": "pnpm --filter @endian/block-registry activate",
+    "blocks:deactivate": "pnpm --filter @endian/block-registry deactivate",
+    "policy:check-protected-paths": "node scripts/check-protected-paths.mjs",
+    "export:scaffold": "node scripts/export-scaffold.mjs"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  }
+}
