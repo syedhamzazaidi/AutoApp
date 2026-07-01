@@ -1,24 +1,64 @@
 {
   "blocks": {
-    "env": { "state": "enabled" },
-    "designSystem": { "state": "enabled" },
-    "errorBoundary": { "state": "enabled" },
-    "supabaseClient": { "state": "enabled" },
-    "appShell": { "state": "enabled" },
-    "admin": { "state": "enabled" },
-    "auth": { "state": "stub", "provider": "supabase", "methods": ["email"] },
-    "rls": { "state": "stub" },
-    "storage": { "state": "stub", "buckets": ["uploads"] },
-    "edgeFunctions": { "state": "stub" },
-    "ai": { "state": "stub", "gateway": "lovable" },
-    "realtime": { "state": "stub" },
-    "email": { "state": "stub" },
-    "rbac": { "state": "stub" },
-    "payments": { "state": "stub" },
-    "multiTenant": { "state": "stub" }
+    "env": {
+      "state": "enabled"
+    },
+    "designSystem": {
+      "state": "enabled"
+    },
+    "errorBoundary": {
+      "state": "enabled"
+    },
+    "supabaseClient": {
+      "state": "enabled"
+    },
+    "appShell": {
+      "state": "enabled"
+    },
+    "admin": {
+      "state": "enabled"
+    },
+    "auth": {
+      "state": "enabled",
+      "provider": "supabase",
+      "methods": [
+        "email"
+      ]
+    },
+    "rls": {
+      "state": "stub"
+    },
+    "storage": {
+      "state": "enabled",
+      "buckets": [
+        "uploads"
+      ]
+    },
+    "edgeFunctions": {
+      "state": "stub"
+    },
+    "ai": {
+      "state": "enabled",
+      "gateway": "lovable"
+    },
+    "realtime": {
+      "state": "stub"
+    },
+    "email": {
+      "state": "stub"
+    },
+    "rbac": {
+      "state": "enabled"
+    },
+    "payments": {
+      "state": "stub"
+    },
+    "multiTenant": {
+      "state": "stub"
+    }
   },
   "admin": {
-    "enabled": false,
+    "enabled": true,
     "customTabs": []
   }
 }
