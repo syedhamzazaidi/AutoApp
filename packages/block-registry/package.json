@@ -1,0 +1,31 @@
+{
+  "name": "@endian/block-registry",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "blocks": "./dist/cli.js"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'no lint configured'",
+    "test": "vitest run",
+    "validate": "pnpm build && node dist/cli.js validate",
+    "activate": "pnpm build && node dist/cli.js activate",
+    "deactivate": "pnpm build && node dist/cli.js deactivate"
+  },
+  "dependencies": {
+    "@endian/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

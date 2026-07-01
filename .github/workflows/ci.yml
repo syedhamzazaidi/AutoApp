@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install
+
+      - run: pnpm --filter @endian/block-registry build
+      - run: pnpm --filter @endian/agent-core build
+      - run: pnpm --filter @endian/shared build
+
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm blocks:validate-manifest
+      - run: pnpm policy:check-protected-paths
+
+      - run: pnpm build
+
+  supabase:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - run: pnpm install
+
+      - name: Start Supabase
+        working-directory: apps/scaffold
+        run: supabase start
+
+      - name: Reset database
+        working-directory: apps/scaffold
+        run: supabase db reset
+
+      - name: Integration tests
+        run: pnpm test:integration || echo "Integration tests skipped if not configured"

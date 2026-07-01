@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Endian turns natural-language prompts into real, exportable full-stack apps. Frozen security-reviewed blocks, a Supabase backend, and a live build-and-preview loop — no lock-in."
+    />
+    <title>Endian — Ship full-stack apps at the speed of conversation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/landing.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="mesh" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="nav">
+      <a class="logo" href="/" aria-label="Endian home">
+        <span class="logo-mark" aria-hidden="true">◆</span>
+        Endian
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#how-it-works">How it works</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#features">Features</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/syedhamzazaidi/AutoApp/tree/main/docs" target="_blank" rel="noopener">Docs</a>
+      </nav>
+      <a class="btn btn-primary btn-sm" href="/builder">Open Builder</a>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="hero-badge">
+          <span class="pulse" aria-hidden="true"></span>
+          Open-source, Lovable-style app builder
+        </div>
+        <h1>
+          Ship full-stack apps at the
+          <span class="gradient-text">speed of conversation</span>
+        </h1>
+        <p class="hero-lead">
+          Describe what you want. Endian's agent activates security-reviewed blocks, writes only the domain code, and
+          proves every change with a real build. You walk away with standard React + TypeScript you fully own — never a
+          no-code cage.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href="/builder">
+            Start building
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </a>
+          <a class="btn btn-ghost btn-lg" href="http://localhost:5173" target="_blank" rel="noopener">
+            See the Plant Pal demo
+          </a>
+        </div>
+        <p class="hero-note">Demo links assume the scaffold is running locally at <code>localhost:5173</code>.</p>
+
+        <div class="hero-visual reveal">
+          <div class="browser-frame">
+            <div class="browser-chrome">
+              <span></span><span></span><span></span>
+              <div class="url-bar">localhost:3001/builder</div>
+            </div>
+            <div class="browser-content">
+              <div class="mock-panel mock-tree">
+                <div class="mock-label">Project</div>
+                <code>apps/scaffold/</code>
+              </div>
+              <div class="mock-panel mock-chat">
+                <div class="mock-label">Chat</div>
+                <div class="mock-bubble user"><span id="mockPrompt">Add a plants page</span></div>
+                <div class="mock-bubble ai" id="mockReply">Generated PlantsPage.tsx</div>
+              </div>
+              <div class="mock-panel mock-preview">
+                <div class="mock-label">Preview</div>
+                <div class="mock-app">
+                  <div class="mock-nav"></div>
+                  <div class="mock-cards"><div></div><div></div><div></div></div>
+                  <div class="mock-file" id="mockFile">src/pages/PlantsPage.tsx ✓</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="glow glow-1" aria-hidden="true"></div>
+          <div class="glow glow-2" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <section class="stats reveal" aria-label="Platform at a glance">
+        <div class="stats-inner">
+          <div class="stat">
+            <span class="stat-num">16</span>
+            <span class="stat-label">reusable blocks, human-reviewed once</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">5</span>
+            <span class="stat-label">step agent loop, no black boxes</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">$0</span>
+            <span class="stat-label">to run on Vercel + Supabase free tiers</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">100%</span>
+            <span class="stat-label">standard code you export and own</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="how-it-works" class="section">
+        <div class="section-header reveal">
+          <p class="eyebrow">The agent loop</p>
+          <h2>Every prompt runs the same five steps</h2>
+          <p class="section-desc">
+            No one-shot guesswork. Each turn parses intent, gathers context, plans a change set, builds it, and folds
+            the result back in — so output stays consistent and reviewable.
+          </p>
+        </div>
+
+        <div class="pipeline reveal" role="img" aria-label="Agent loop: Spec, Context, Plan, Build, Preview, with feedback looping back to Spec">
+          <div class="pipeline-node"><span class="pipeline-num">01</span>Spec</div>
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+          <div class="pipeline-node"><span class="pipeline-num">02</span>Context</div>
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+          <div class="pipeline-node"><span class="pipeline-num">03</span>Plan</div>
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+          <div class="pipeline-node"><span class="pipeline-num">04</span>Build</div>
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+          <div class="pipeline-node"><span class="pipeline-num">05</span>Preview</div>
+          <div class="pipeline-feedback" aria-hidden="true">↺ feedback loops back to Spec</div>
+        </div>
+
+        <div class="steps">
+          <article class="step-card reveal">
+            <span class="step-num">01</span>
+            <h3>Spec</h3>
+            <p>Turn a plain-English prompt into concrete intent, constraints, and scope boundaries.</p>
+          </article>
+          <article class="step-card reveal">
+            <span class="step-num">02</span>
+            <h3>Context</h3>
+            <p>Snapshot the file tree, block manifest, and recent chat — bounded, never the whole repo.</p>
+          </article>
+          <article class="step-card reveal">
+            <span class="step-num">03</span>
+            <h3>Plan</h3>
+            <p>Classify the work: activate a block, configure it, or generate a feature. Preview diffs first.</p>
+          </article>
+          <article class="step-card reveal">
+            <span class="step-num">04</span>
+            <h3>Build</h3>
+            <p>Apply patches behind a TypeScript + Vite gate. Broken builds never reach the preview.</p>
+          </article>
+          <article class="step-card reveal">
+            <span class="step-num">05</span>
+            <h3>Preview</h3>
+            <p>The live preview updates. Your feedback starts the next cycle — iterate until it ships.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="architecture" class="section">
+        <div class="section-header reveal">
+          <p class="eyebrow">Runtime architecture</p>
+          <h2>Two tiers, one public key, zero trust in the browser</h2>
+          <p class="section-desc">
+            Generated apps talk straight to Supabase over a public key. A blue client zone is guarded by Row Level
+            Security; a red server zone holds every secret. Authorization lives in the database, not in hope.
+          </p>
+        </div>
+
+        <div class="diagram-wrap reveal">
+          <svg class="diagram" viewBox="0 0 820 380" preserveAspectRatio="xMidYMid meet" role="img"
+            aria-label="Two-tier architecture: the browser blue zone uses the public anon key and is constrained by RLS and storage policies; edge functions form the red zone holding service-role and API keys; both reach PostgreSQL with row level security.">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" class="arrow-head" />
+              </marker>
+            </defs>
+
+            <!-- Blue zone -->
+            <g>
+              <rect class="zone zone-blue" x="20" y="40" width="230" height="300" rx="16" />
+              <text class="zone-title zone-title-blue" x="40" y="72">Blue zone · client</text>
+              <rect class="node" x="44" y="92" width="182" height="66" rx="10" />
+              <text class="node-title" x="60" y="122">React SPA</text>
+              <text class="node-sub" x="60" y="142">bundled, runs in browser</text>
+              <rect class="node" x="44" y="176" width="182" height="66" rx="10" />
+              <text class="node-title" x="60" y="206">Publishable anon key</text>
+              <text class="node-sub" x="60" y="226">public by design</text>
+              <rect class="node node-accent" x="44" y="260" width="182" height="58" rx="10" />
+              <text class="node-title" x="60" y="288">RLS + storage policies</text>
+              <text class="node-sub" x="60" y="306">decide every row</text>
+            </g>
+
+            <!-- Managed layer -->
+            <g>
+              <rect class="zone" x="300" y="40" width="230" height="300" rx="16" />
+              <text class="zone-title" x="320" y="72">Supabase managed layer</text>
+              <rect class="node" x="324" y="92" width="182" height="46" rx="10" />
+              <text class="node-title" x="340" y="120">PostgREST</text>
+              <rect class="node" x="324" y="150" width="182" height="46" rx="10" />
+              <text class="node-title" x="340" y="178">Auth API</text>
+              <rect class="node" x="324" y="208" width="182" height="46" rx="10" />
+              <text class="node-title" x="340" y="236">Storage API</text>
+              <rect class="node node-red" x="324" y="266" width="182" height="52" rx="10" />
+              <text class="node-title" x="340" y="290">Edge functions</text>
+              <text class="node-sub node-sub-red" x="340" y="308">red zone · secrets</text>
+            </g>
+
+            <!-- Data -->
+            <g>
+              <rect class="zone" x="580" y="120" width="220" height="140" rx="16" />
+              <text class="zone-title" x="600" y="152">Data</text>
+              <rect class="node node-accent" x="604" y="168" width="172" height="72" rx="10" />
+              <text class="node-title" x="620" y="200">PostgreSQL</text>
+              <text class="node-sub" x="620" y="220">RLS enforced</text>
+            </g>
+
+            <!-- Flows -->
+            <path class="flow" d="M250 150 L300 150" marker-end="url(#arrow)" />
+            <path class="flow" d="M250 210 L300 210" marker-end="url(#arrow)" />
+            <path class="flow" d="M250 290 L324 290" marker-end="url(#arrow)" />
+            <path class="flow" d="M530 175 L604 195" marker-end="url(#arrow)" />
+            <path class="flow flow-red" d="M530 292 L640 240" marker-end="url(#arrow)" />
+          </svg>
+        </div>
+      </section>
+
+      <section id="features" class="section">
+        <div class="section-header reveal">
+          <p class="eyebrow">Frozen blocks</p>
+          <h2>Reuse the hard parts, generate only what's yours</h2>
+          <p class="section-desc">
+            Auth, storage, admin, and RLS are reviewed once and frozen. The agent flips them on with deterministic
+            recipes and spends its tokens on your actual product.
+          </p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card reveal">
+            <div class="feature-icon" aria-hidden="true">🔐</div>
+            <h3>Auth &amp; RLS</h3>
+            <p>Supabase Auth, JWT sessions, and Row Level Security on every user-owned table by default.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon" aria-hidden="true">📦</div>
+            <h3>Block registry</h3>
+            <p>Deterministic recipes flip a block from stub to enabled — no LLM ever rewrites security-critical wiring.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon" aria-hidden="true">⚡</div>
+            <h3>Edge functions</h3>
+            <p>Secrets stay server-side. AI calls, admin metrics, and privileged writes run in the Deno red zone.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon" aria-hidden="true">📊</div>
+            <h3>Admin dashboard</h3>
+            <p>Tabs appear as blocks turn on — Users, Storage, AI usage — all gated behind RBAC.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon" aria-hidden="true">🌱</div>
+            <h3>Plant Pal demo</h3>
+            <p>A full reference app: upload a photo, get an AI health check, and browse history — end to end.</p>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon" aria-hidden="true">🚀</div>
+            <h3>Free-tier deploy</h3>
+            <p>Runs on Vercel Hobby + Supabase free. Export the scaffold as a standalone repo whenever you like.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="compare" class="section">
+        <div class="section-header reveal">
+          <p class="eyebrow">Why Endian</p>
+          <h2>The ownership of code, the speed of no-code</h2>
+        </div>
+        <div class="compare-grid reveal">
+          <div class="compare-col compare-good">
+            <h3><span class="compare-mark" aria-hidden="true">◆</span> Endian</h3>
+            <ul>
+              <li>Real React + TypeScript you export to GitHub</li>
+              <li>RLS-first security, reviewed once and frozen</li>
+              <li>Every change gated by a real build</li>
+              <li>Full-stack: database, auth, storage, edge functions</li>
+              <li>No vendor lock-in, no proprietary runtime</li>
+            </ul>
+          </div>
+          <div class="compare-col compare-bad">
+            <h3><span class="compare-mark" aria-hidden="true">×</span> Typical no-code</h3>
+            <ul>
+              <li>Opaque blocks you can't inspect or export</li>
+              <li>Authorization bolted on, if at all</li>
+              <li>Broken states ship silently</li>
+              <li>Front-end only, or a closed backend</li>
+              <li>Your project lives and dies on their platform</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="stack-section">
+        <div class="stack-inner reveal">
+          <div class="stack-text">
+            <p class="eyebrow">Tech stack</p>
+            <h2>Boring, standard, and entirely yours</h2>
+            <p class="stack-desc">No bespoke framework to learn. It's the stack you already know — just scaffolded well.</p>
+            <ul class="stack-list">
+              <li>React + Vite + TypeScript + Tailwind</li>
+              <li>shadcn/ui components copied into the repo</li>
+              <li>Supabase Postgres, Auth, Storage, Edge Functions</li>
+              <li>pnpm monorepo orchestrated with Turborepo</li>
+            </ul>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span>lovable.blocks.json</span></div>
+            <pre><code>{
+  "blocks": {
+    "auth": { "state": "enabled" },
+    "storage": { "state": "enabled" },
+    "ai": { "state": "enabled" },
+    "rbac": { "state": "enabled" }
+  }
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="section">
+        <div class="section-header reveal">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions, answered</h2>
+        </div>
+        <div class="faq reveal">
+          <details class="faq-item">
+            <summary>Is this production-ready?</summary>
+            <p>
+              It's a proof-of-concept that mirrors Lovable's architecture. The blocks and RLS patterns are real and
+              reviewable, but you should human-review generated RLS policies before shipping anything sensitive.
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>What do I actually own?</summary>
+            <p>
+              Everything. The output is standard React + TypeScript in your repo. Run <code>pnpm export:scaffold</code>
+              to lift it out as a standalone project — no runtime dependency on Endian.
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>How does block activation work?</summary>
+            <p>
+              Cross-cutting infrastructure is frozen. When you ask for "login," the planner runs a deterministic recipe
+              that flips the auth block from stub to enabled and applies its migration — no LLM touches the internals.
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>What does it cost to host?</summary>
+            <p>
+              Nothing to start. The default target is Vercel Hobby plus the Supabase free tier. Expect cold starts and
+              occasional project pauses — fine for demos and internal tools.
+            </p>
+          </details>
+          <details class="faq-item">
+            <summary>Can I use my own AI provider?</summary>
+            <p>
+              Yes. The AI gateway runs in mock mode until you set a secret in Supabase, then routes real calls through
+              an edge function so keys never reach the browser.
+            </p>
+          </details>
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <div class="cta-card reveal">
+          <h2>Describe it. Watch it build.</h2>
+          <p>Open the builder, type what you want, and get real source code back — with a live preview and no lock-in.</p>
+          <div class="cta-actions">
+            <a class="btn btn-primary btn-lg" href="/builder">Open the Builder</a>
+            <a class="btn btn-outline btn-lg" href="http://localhost:5173" target="_blank" rel="noopener">Run Plant Pal locally</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <span class="logo-mark" aria-hidden="true">◆</span> Endian
+        <span class="footer-sep" aria-hidden="true">·</span>
+        <span>Architecture docs in <code>docs/</code></span>
+        <span class="footer-sep" aria-hidden="true">·</span>
+        <a href="/builder">Builder</a>
+        <span class="footer-sep" aria-hidden="true">·</span>
+        <a href="https://github.com/syedhamzazaidi/AutoApp" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </footer>
+
+    <script src="/landing.js" defer></script>
+  </body>
+</html>
