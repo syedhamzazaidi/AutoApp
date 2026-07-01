@@ -6,14 +6,12 @@ import { classifyPrompt, planAndApply, DEFAULT_PROTECTED_PATHS } from "@endian/a
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../../..");
 const SCAFFOLD_ROOT = path.resolve(ROOT, "apps/scaffold");
+const PUBLIC_DIR = path.join(__dirname, "public");
 const PORT = Number(process.env.PORT ?? 3001);
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
-app.get("/", (_req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+app.use(express.static(PUBLIC_DIR));
 
 interface Message {
   role: "user" | "assistant";
@@ -21,6 +19,14 @@ interface Message {
 }
 
 const conversation: Message[] = [];
+
+app.get("/", (_req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "index.html"));
+});
+
+app.get("/builder", (_req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "builder.html"));
+});
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
@@ -77,5 +83,7 @@ app.post("/api/agent-turn", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Platform server running at http://localhost:${PORT}`);
+  console.log(`Platform running at http://localhost:${PORT}`);
+  console.log(`  Landing:  http://localhost:${PORT}/`);
+  console.log(`  Builder:  http://localhost:${PORT}/builder`);
 });

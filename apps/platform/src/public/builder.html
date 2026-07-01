@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Builder — Endian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/builder.css" />
+  </head>
+  <body>
+    <header class="builder-header">
+      <a class="logo" href="/">
+        <span class="logo-mark">◆</span>
+        Endian
+      </a>
+      <span class="header-title">Builder</span>
+      <span class="header-flow">Spec → Context → Plan → Build → Preview</span>
+      <a class="back-link" href="/">← Landing</a>
+    </header>
+    <main class="builder-main">
+      <div class="panel panel-tree">
+        <h2>Project</h2>
+        <div class="file-tree">
+          apps/scaffold/<br />
+          ├── src/pages/<br />
+          ├── src/services/<br />
+          ├── src/features/<br />
+          └── supabase/<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;├── migrations/<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;└── functions/
+        </div>
+      </div>
+      <div class="panel panel-chat">
+        <h2>Chat</h2>
+        <div id="messages" class="messages"></div>
+        <div class="input-area">
+          <input id="prompt" type="text" placeholder="Add a plants page that lists my plants..." />
+          <label class="plan-toggle">
+            <input type="checkbox" id="planMode" />
+            Plan mode
+          </label>
+          <button id="send" type="button">Send</button>
+        </div>
+      </div>
+      <div class="panel panel-preview">
+        <h2>Preview</h2>
+        <iframe src="http://localhost:5173" title="App preview"></iframe>
+      </div>
+    </main>
+    <script src="/builder.js"></script>
+  </body>
+</html>

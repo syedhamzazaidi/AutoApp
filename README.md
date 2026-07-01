@@ -28,7 +28,9 @@ pnpm --filter @endian/scaffold dev
 pnpm --filter @endian/platform dev
 ```
 
-Open http://localhost:5173 for the app, http://localhost:3001 for the builder.
+Open http://localhost:5173 for the Plant Pal app.
+
+Open http://localhost:3001 for the platform landing page, or go directly to http://localhost:3001/builder for the builder UI.
 
 ## Local Supabase
 

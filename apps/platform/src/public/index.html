@@ -3,89 +3,209 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lovable POC Platform</title>
-    <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: system-ui, sans-serif; height: 100vh; display: flex; flex-direction: column; background: #0a0a0a; color: #fafafa; }
-      header { padding: 1rem 1.5rem; border-bottom: 1px solid #27272a; display: flex; justify-content: space-between; align-items: center; }
-      main { flex: 1; display: grid; grid-template-columns: 280px 1fr 1fr; overflow: hidden; }
-      .panel { border-right: 1px solid #27272a; overflow: auto; padding: 1rem; }
-      .panel:last-child { border-right: none; }
-      h2 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: #a1a1aa; margin-bottom: 1rem; }
-      #messages { display: flex; flex-direction: column; gap: 0.75rem; }
-      .msg { padding: 0.75rem; border-radius: 0.5rem; font-size: 0.875rem; }
-      .msg.user { background: #27272a; align-self: flex-end; max-width: 85%; }
-      .msg.assistant { background: #18181b; border: 1px solid #27272a; }
-      #input-area { padding: 1rem; border-top: 1px solid #27272a; display: flex; gap: 0.5rem; }
-      #prompt { flex: 1; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #27272a; background: #18181b; color: #fafafa; font-size: 0.875rem; }
-      button { padding: 0.75rem 1.25rem; border-radius: 0.5rem; border: none; background: #16a34a; color: white; cursor: pointer; font-weight: 500; }
-      button:hover { background: #15803d; }
-      button.secondary { background: #27272a; }
-      iframe { width: 100%; height: calc(100% - 2rem); border: 1px solid #27272a; border-radius: 0.5rem; background: white; }
-      .file-tree { font-family: monospace; font-size: 0.75rem; color: #a1a1aa; line-height: 1.6; }
-      label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #a1a1aa; }
-    </style>
+    <meta name="description" content="Build full-stack web apps from natural language. A Lovable-style AI platform with frozen blocks, Supabase backend, and live preview." />
+    <title>Endian — AI Full-Stack App Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/landing.css" />
   </head>
   <body>
-    <header>
-      <strong>Lovable POC Platform</strong>
-      <span style="color:#a1a1aa;font-size:0.875rem">Chat → Plan → Build → Preview</span>
+    <div class="mesh" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="nav">
+      <a class="logo" href="/">
+        <span class="logo-mark">◆</span>
+        Endian
+      </a>
+      <nav class="nav-links">
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="https://github.com/syedhamzazaidi/AutoApp/tree/main/docs" target="_blank" rel="noopener">Docs</a>
+      </nav>
+      <a class="btn btn-primary btn-sm" href="/builder">Open Builder</a>
     </header>
+
     <main>
-      <div class="panel">
-        <h2>Project</h2>
-        <div class="file-tree">
-          apps/scaffold/<br>
-          ├── src/pages/<br>
-          ├── src/services/<br>
-          ├── src/features/<br>
-          └── supabase/<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;├── migrations/<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;└── functions/
+      <section class="hero">
+        <div class="hero-badge">
+          <span class="pulse"></span>
+          Lovable-style POC · Open source
         </div>
-      </div>
-      <div class="panel" style="display:flex;flex-direction:column">
-        <h2>Chat</h2>
-        <div id="messages" style="flex:1;overflow:auto"></div>
-        <div id="input-area">
-          <input id="prompt" placeholder="Add a plants page that lists my plants..." />
-          <label><input type="checkbox" id="planMode" /> Plan</label>
-          <button id="send">Send</button>
+        <h1>
+          Turn prompts into
+          <span class="gradient-text">real full-stack apps</span>
+        </h1>
+        <p class="hero-lead">
+          Endian is an AI-native app builder that generates exportable React + TypeScript code against a
+          frozen scaffold — auth, storage, admin, and Supabase backend included. Chat, plan, build, preview.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href="/builder">
+            Launch Builder
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn-ghost btn-lg" href="http://localhost:5173" target="_blank" rel="noopener">
+            View Plant Pal demo
+          </a>
         </div>
-      </div>
-      <div class="panel">
-        <h2>Preview</h2>
-        <iframe src="http://localhost:5173" title="App preview"></iframe>
-      </div>
+
+        <div class="hero-visual">
+          <div class="browser-frame">
+            <div class="browser-chrome">
+              <span></span><span></span><span></span>
+              <div class="url-bar">localhost:3001/builder</div>
+            </div>
+            <div class="browser-content">
+              <div class="mock-panel mock-tree">
+                <div class="mock-label">Project</div>
+                <code>apps/scaffold/</code>
+              </div>
+              <div class="mock-panel mock-chat">
+                <div class="mock-label">Chat</div>
+                <div class="mock-bubble user">Add a plants page</div>
+                <div class="mock-bubble ai">Generated PlantsPage.tsx ✓</div>
+              </div>
+              <div class="mock-panel mock-preview">
+                <div class="mock-label">Preview</div>
+                <div class="mock-app">
+                  <div class="mock-nav"></div>
+                  <div class="mock-cards">
+                    <div></div><div></div><div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="glow glow-1"></div>
+          <div class="glow glow-2"></div>
+        </div>
+      </section>
+
+      <section id="how-it-works" class="section">
+        <div class="section-header">
+          <p class="eyebrow">The agent loop</p>
+          <h2>Five steps from idea to deployed app</h2>
+          <p class="section-desc">Every prompt flows through the same orchestration cycle — no black boxes, just real code you own.</p>
+        </div>
+        <div class="steps">
+          <article class="step-card">
+            <span class="step-num">01</span>
+            <h3>Spec</h3>
+            <p>Parse intent, constraints, and scope from your natural-language prompt.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-num">02</span>
+            <h3>Context</h3>
+            <p>Snapshot the file tree, block manifest, and recent conversation history.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-num">03</span>
+            <h3>Plan</h3>
+            <p>Classify work: block activation, configuration, or feature generation. Review diffs in Plan mode.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-num">04</span>
+            <h3>Build</h3>
+            <p>Apply patches, run TypeScript + Vite build gate, deploy backend via Supabase CLI.</p>
+          </article>
+          <article class="step-card">
+            <span class="step-num">05</span>
+            <h3>Preview</h3>
+            <p>Live iframe preview updates. Iterate with feedback until it ships.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="features" class="section">
+        <div class="section-header">
+          <p class="eyebrow">Platform architecture</p>
+          <h2>Frozen blocks, not regenerated boilerplate</h2>
+          <p class="section-desc">Cross-cutting infrastructure is human-reviewed once. The agent activates blocks and generates domain code only.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon">🔐</div>
+            <h3>Auth & RLS</h3>
+            <p>Supabase Auth with profiles, JWT sessions, and Row Level Security on every user-owned table.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">📦</div>
+            <h3>Block registry</h3>
+            <p>Deterministic activation recipes flip blocks from stub → enabled without LLM rewriting internals.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Edge functions</h3>
+            <p>Secrets stay server-side. AI gateway, admin metrics, and domain logic run in Deno red zone.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Admin dashboard</h3>
+            <p>Block-aware metrics UI with dynamic tabs — Users, Storage, AI usage — gated by RBAC.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">🌱</div>
+            <h3>Plant Pal demo</h3>
+            <p>Reference app: upload a plant photo, get AI health analysis, view history — full E2E pattern.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">🚀</div>
+            <h3>Free-tier deploy</h3>
+            <p>Vercel Hobby + Supabase free. Export scaffold as standalone repo anytime.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="stack-section">
+        <div class="stack-inner">
+          <div class="stack-text">
+            <p class="eyebrow">Tech stack</p>
+            <h2>Standard code you can export and own</h2>
+            <ul class="stack-list">
+              <li>React + Vite + TypeScript + Tailwind</li>
+              <li>shadcn/ui components copied into repo</li>
+              <li>Supabase Postgres, Auth, Storage, Edge Functions</li>
+              <li>pnpm monorepo with Turborepo orchestration</li>
+            </ul>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <span>lovable.blocks.json</span>
+            </div>
+            <pre><code>{
+  "blocks": {
+    "auth": { "state": "enabled" },
+    "storage": { "state": "enabled" },
+    "ai": { "state": "enabled" },
+    "rbac": { "state": "enabled" }
+  }
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-section">
+        <div class="cta-card">
+          <h2>Ready to build?</h2>
+          <p>Open the builder, describe your app, and watch it come to life — with real source code, not a no-code lock-in.</p>
+          <div class="cta-actions">
+            <a class="btn btn-primary btn-lg" href="/builder">Open Builder UI</a>
+            <a class="btn btn-outline btn-lg" href="http://localhost:5173" target="_blank" rel="noopener">Run Plant Pal locally</a>
+          </div>
+        </div>
+      </section>
     </main>
-    <script>
-      const messagesEl = document.getElementById('messages');
-      const promptEl = document.getElementById('prompt');
-      const planModeEl = document.getElementById('planMode');
 
-      async function loadMessages() {
-        const res = await fetch('/api/messages');
-        const { messages } = await res.json();
-        messagesEl.innerHTML = messages.map(m =>
-          `<div class="msg ${m.role}">${m.content.replace(/</g,'&lt;')}</div>`
-        ).join('');
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-      }
-
-      document.getElementById('send').addEventListener('click', async () => {
-        const prompt = promptEl.value.trim();
-        if (!prompt) return;
-        promptEl.value = '';
-        await fetch('/api/agent-turn', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, planMode: planModeEl.checked }),
-        });
-        await loadMessages();
-      });
-
-      promptEl.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('send').click(); });
-      loadMessages();
-    </script>
+    <footer class="footer">
+      <div class="footer-inner">
+        <span class="logo-mark">◆</span> Endian
+        <span class="footer-sep">·</span>
+        <span>Architecture docs in <code>docs/</code></span>
+        <span class="footer-sep">·</span>
+        <a href="/builder">Builder</a>
+      </div>
+    </footer>
   </body>
 </html>
