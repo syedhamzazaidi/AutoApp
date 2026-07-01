@@ -1,5 +1,5 @@
 import manifest from "../../lovable.blocks.json";
-import type { BlocksManifest } from "@endian/shared";
+import type { BlocksManifest } from "@app/shared";
 
 export function getBlocksManifest(): BlocksManifest {
   return manifest as BlocksManifest;

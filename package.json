@@ -1,5 +1,5 @@
 {
-  "name": "endian",
+  "name": "app-builder",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -8,9 +8,9 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:integration": "turbo run test:integration",
-    "blocks:validate-manifest": "pnpm --filter @endian/block-registry validate",
-    "blocks:activate": "pnpm --filter @endian/block-registry activate",
-    "blocks:deactivate": "pnpm --filter @endian/block-registry deactivate",
+    "blocks:validate-manifest": "pnpm --filter @app/block-registry validate",
+    "blocks:activate": "pnpm --filter @app/block-registry activate",
+    "blocks:deactivate": "pnpm --filter @app/block-registry deactivate",
     "policy:check-protected-paths": "node scripts/check-protected-paths.mjs",
     "export:scaffold": "node scripts/export-scaffold.mjs"
   },

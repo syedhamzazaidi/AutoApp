@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateClientEnv } from "@endian/shared";
+import { validateClientEnv } from "@app/shared";
 
 describe("env validation", () => {
   it("allows empty keys in development", () => {

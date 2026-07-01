@@ -1,5 +1,5 @@
 {
-  "name": "@endian/platform",
+  "name": "@app/platform",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -11,9 +11,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@endian/agent-core": "workspace:*",
-    "@endian/block-registry": "workspace:*",
-    "@endian/shared": "workspace:*",
+    "@app/agent-core": "workspace:*",
+    "@app/block-registry": "workspace:*",
+    "@app/shared": "workspace:*",
     "express": "^4.21.2"
   },
   "devDependencies": {

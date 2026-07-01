@@ -1,7 +1,7 @@
 import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { classifyPrompt, planAndApply, DEFAULT_PROTECTED_PATHS } from "@endian/agent-core";
+import { classifyPrompt, planAndApply, DEFAULT_PROTECTED_PATHS } from "@app/agent-core";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../../..");

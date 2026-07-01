@@ -1,4 +1,4 @@
-import type { FilePatch } from "@endian/shared";
+import type { FilePatch } from "@app/shared";
 
 export function generateFeaturePatches(prompt: string): FilePatch[] {
   const normalized = prompt.toLowerCase();

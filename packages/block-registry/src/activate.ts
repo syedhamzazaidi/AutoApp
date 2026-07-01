@@ -1,6 +1,6 @@
 import { execSync } from "node:child_process";
 import { resolve } from "node:path";
-import type { BlocksManifest } from "@endian/shared";
+import type { BlocksManifest } from "@app/shared";
 import { RECIPES } from "./recipes/index.js";
 import { readManifest, writeManifest } from "./manifest.js";
 

@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { BlocksManifest } from "@endian/shared";
+import type { BlocksManifest } from "@app/shared";
 import schema from "../schema.json" with { type: "json" };
 
 function findScaffoldRoot(): string {

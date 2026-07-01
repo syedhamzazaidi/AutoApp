@@ -1,4 +1,4 @@
-import type { BlockConfig, BlocksManifest } from "@endian/shared";
+import type { BlockConfig, BlocksManifest } from "@app/shared";
 
 export interface ActivationRecipe {
   blockId: string;

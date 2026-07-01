@@ -1,4 +1,4 @@
-import type { WorkType } from "@endian/shared";
+import type { WorkType } from "@app/shared";
 
 const ACTIVATION_PATTERNS = [
   /\badd\s+login\b/i,

@@ -1,4 +1,4 @@
-# Endian — Lovable-Style POC
+# Lovable-Style POC
 
 A proof-of-concept implementation of the [Lovable.dev](https://lovable.dev) AI-native application platform architecture. See [`docs/`](./docs/) for full system design documentation.
 
@@ -22,10 +22,10 @@ pnpm install
 pnpm build
 
 # Run scaffold dev server (Plant Pal app)
-pnpm --filter @endian/scaffold dev
+pnpm --filter @app/scaffold dev
 
 # Run platform builder UI (separate terminal)
-pnpm --filter @endian/platform dev
+pnpm --filter @app/platform dev
 ```
 
 Open http://localhost:5173 for the Plant Pal app.
@@ -118,7 +118,7 @@ pnpm export:scaffold
 
 ```bash
 pnpm test                    # Unit tests
-pnpm --filter @endian/scaffold test:e2e  # Playwright E2E
+pnpm --filter @app/scaffold test:e2e  # Playwright E2E
 ```
 
 ## Policy
