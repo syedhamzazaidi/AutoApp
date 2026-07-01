@@ -22,9 +22,9 @@ jobs:
 
       - run: pnpm install
 
-      - run: pnpm --filter @endian/block-registry build
-      - run: pnpm --filter @endian/agent-core build
-      - run: pnpm --filter @endian/shared build
+      - run: pnpm --filter @app/block-registry build
+      - run: pnpm --filter @app/agent-core build
+      - run: pnpm --filter @app/shared build
 
       - run: pnpm lint
       - run: pnpm typecheck

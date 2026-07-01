@@ -1,5 +1,5 @@
 {
-  "name": "@endian/block-registry",
+  "name": "@app/block-registry",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -21,7 +21,7 @@
     "deactivate": "pnpm build && node dist/cli.js deactivate"
   },
   "dependencies": {
-    "@endian/shared": "workspace:*"
+    "@app/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

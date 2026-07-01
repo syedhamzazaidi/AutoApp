@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync, unlinkSync } from "node:fs";
 import { dirname, join } from "node:path";
-import type { AgentTurnResult, FilePatch } from "@endian/shared";
-import { activateBlock, readManifest } from "@endian/block-registry";
+import type { AgentTurnResult, FilePatch } from "@app/shared";
+import { activateBlock, readManifest } from "@app/block-registry";
 import { classifyPrompt } from "./classifier.js";
 import { buildContext } from "./context.js";
 import { generateFeaturePatches } from "./prompts/feature-generation.js";

@@ -18,7 +18,7 @@ cpSync(SCAFFOLD, OUT, {
 });
 
 const pkg = JSON.parse(readFileSync(resolve(OUT, "package.json"), "utf-8"));
-delete pkg.dependencies["@endian/shared"];
+delete pkg.dependencies["@app/shared"];
 pkg.name = "plant-pal";
 writeFileSync(resolve(OUT, "package.json"), JSON.stringify(pkg, null, 2));
 
@@ -26,7 +26,7 @@ writeFileSync(resolve(OUT, "package.json"), JSON.stringify(pkg, null, 2));
 const envContent = readFileSync(resolve(OUT, "src/lib/env.ts"), "utf-8");
 writeFileSync(
   resolve(OUT, "src/lib/env.ts"),
-  envContent.replace('@endian/shared', './env-validate').replace('validateClientEnv', 'validateClientEnv'),
+  envContent.replace('@app/shared', './env-validate').replace('validateClientEnv', 'validateClientEnv'),
 );
 
 console.log(`Exported scaffold to ${OUT}`);

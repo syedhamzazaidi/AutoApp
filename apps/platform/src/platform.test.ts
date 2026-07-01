@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyPrompt } from "@endian/agent-core";
+import { classifyPrompt } from "@app/agent-core";
 
 describe("platform agent integration", () => {
   it("classifies login prompt as block activation", () => {

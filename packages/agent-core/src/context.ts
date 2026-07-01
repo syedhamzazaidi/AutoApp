@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import type { AgentMessage, BlocksManifest } from "@endian/shared";
+import type { AgentMessage, BlocksManifest } from "@app/shared";
 
 export interface ProjectContext {
   fileTree: string[];

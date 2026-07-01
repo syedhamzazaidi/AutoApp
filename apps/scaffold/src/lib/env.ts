@@ -1,4 +1,4 @@
-import { validateClientEnv } from "@endian/shared";
+import { validateClientEnv } from "@app/shared";
 
 const raw = {
   VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL as string | undefined,

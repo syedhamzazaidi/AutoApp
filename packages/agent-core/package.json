@@ -1,5 +1,5 @@
 {
-  "name": "@endian/agent-core",
+  "name": "@app/agent-core",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -15,8 +15,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@endian/block-registry": "workspace:*",
-    "@endian/shared": "workspace:*"
+    "@app/block-registry": "workspace:*",
+    "@app/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

@@ -1,5 +1,5 @@
 {
-  "name": "@endian/scaffold",
+  "name": "@app/scaffold",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -14,7 +14,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
-    "@endian/shared": "workspace:*",
+    "@app/shared": "workspace:*",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.4",
     "@supabase/supabase-js": "^2.47.10",
