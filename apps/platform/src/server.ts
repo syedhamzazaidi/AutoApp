@@ -1,7 +1,11 @@
+import "./load-env.js";
 import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { classifyPrompt, planAndApply, DEFAULT_PROTECTED_PATHS } from "@app/agent-core";
+import { auth } from "./auth.js";
+import { isAuthDisabled, requireAuth } from "./middleware/require-auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../../..");
@@ -9,7 +13,11 @@ const SCAFFOLD_ROOT = path.resolve(ROOT, "apps/scaffold");
 const PUBLIC_DIR = path.join(__dirname, "public");
 const PORT = Number(process.env.PORT ?? 3001);
 
-const app = express();
+export const app = express();
+
+app.all("/api/auth/*", toNodeHandler(auth));
+
+app.use(requireAuth);
 app.use(express.json());
 app.use(express.static(PUBLIC_DIR));
 
@@ -24,12 +32,38 @@ app.get("/", (_req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "index.html"));
 });
 
+app.get("/login", (_req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "login.html"));
+});
+
 app.get("/builder", (_req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, "builder.html"));
 });
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok" });
+  res.json({ status: "ok", authEnabled: !isAuthDisabled() });
+});
+
+app.get("/api/me", async (req, res) => {
+  if (isAuthDisabled()) {
+    res.json({
+      user: { email: "dev@local", name: "Dev User" },
+      session: null,
+      authEnabled: false,
+    });
+    return;
+  }
+
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
+
+  if (!session) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  res.json({ ...session, authEnabled: true });
 });
 
 app.get("/api/messages", (_req, res) => {
@@ -82,8 +116,14 @@ app.post("/api/agent-turn", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Platform running at http://localhost:${PORT}`);
-  console.log(`  Landing:  http://localhost:${PORT}/`);
-  console.log(`  Builder:  http://localhost:${PORT}/builder`);
-});
+if (process.env.VITEST !== "true") {
+  app.listen(PORT, () => {
+    console.log(`Platform running at http://localhost:${PORT}`);
+    console.log(`  Landing:  http://localhost:${PORT}/`);
+    console.log(`  Builder:  http://localhost:${PORT}/builder`);
+    console.log(`  Login:    http://localhost:${PORT}/login`);
+    if (isAuthDisabled()) {
+      console.log("  Auth:     disabled (BUILDER_AUTH_DISABLED)");
+    }
+  });
+}

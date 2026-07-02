@@ -17,7 +17,11 @@
       </a>
       <span class="header-title">Builder</span>
       <span class="header-flow">Spec → Context → Plan → Build → Preview</span>
-      <a class="back-link" href="/">← Landing</a>
+      <div class="header-actions">
+        <span id="userLabel" class="user-label"></span>
+        <button id="sign-out" type="button" class="sign-out-btn">Sign out</button>
+        <a class="back-link" href="/">← Landing</a>
+      </div>
     </header>
     <main class="builder-main">
       <div class="panel panel-tree">
@@ -49,6 +53,6 @@
         <iframe src="http://localhost:5173" title="App preview"></iframe>
       </div>
     </main>
-    <script src="/builder.js"></script>
+    <script type="module" src="/builder.js"></script>
   </body>
 </html>

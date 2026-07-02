@@ -14,6 +14,8 @@
     "@app/agent-core": "workspace:*",
     "@app/block-registry": "workspace:*",
     "@app/shared": "workspace:*",
+    "better-auth": "^1.6.23",
+    "dotenv": "^17.4.2",
     "express": "^4.21.2"
   },
   "devDependencies": {

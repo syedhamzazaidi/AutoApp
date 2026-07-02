@@ -30,7 +30,22 @@ pnpm --filter @app/platform dev
 
 Open http://localhost:5173 for the Plant Pal app.
 
-Open http://localhost:3001 for the platform landing page, or go directly to http://localhost:3001/builder for the builder UI.
+Open http://localhost:3001 for the platform landing page, or go directly to http://localhost:3001/builder for the builder UI (Google sign-in required unless `BUILDER_AUTH_DISABLED=1`).
+
+### Builder Google OAuth
+
+The builder at `/builder` requires Google sign-in. Set these env vars when running the platform (see `.env.sample`):
+
+```bash
+BETTER_AUTH_SECRET=...   # openssl rand -base64 32
+BETTER_AUTH_URL=http://localhost:3001
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+```
+
+Create OAuth credentials in [Google Cloud Console](https://console.cloud.google.com/apis/credentials) with redirect URI `http://localhost:3001/api/auth/callback/google`.
+
+To skip auth during local development: `BUILDER_AUTH_DISABLED=1 pnpm --filter @app/platform dev`
 
 ## Local Supabase
 

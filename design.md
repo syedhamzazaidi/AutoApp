@@ -4,7 +4,7 @@
 
 Blueprint is Endian's design system — inspired by the [Blueprint theme](https://syedhamzazaidi.github.io) from the Paper portfolio (`../code/syedhamzazaidi.github.io`). The aesthetic treats every surface like a technical document: a narrow reading column on a grid field, monospace labels, dashed annotation frames, and sky-blue accents that read as instrumentation rather than decoration.
 
-Prioritize clarity and scanability over visual noise. Hierarchy comes from typography role (sans for prose, mono for structure), left-edge accent bars, and translucent borders — not from heavy shadows or saturated fills. Color signals structure, state, and links; the grid signals precision.
+Prioritize clarity and scanability over visual noise. Hierarchy comes from typography role (sans for prose, mono for structure), uniform 1px borders, and translucent surfaces — not from heavy shadows, rounded corners, or thick edge accents. Color signals structure, state, and links; the grid signals precision.
 
 This is the default theme. Token names are shared CSS custom properties so platform UI, the builder, and generated scaffolds can stay aligned. Source reference: `styles/base.css` and `styles/themes/blueprint.css` in the portfolio repo.
 
@@ -148,16 +148,21 @@ Default UI feedback should feel **instant**. A duration of `0ms` is often correc
 
 ## Shapes
 
+**Platform rule:** all boxes, cards, panels, buttons, and inputs use **`border-radius: 0`**. Separation is a uniform **`1px solid`** border on every side — never a thicker left/right/top edge.
+
 | Element | Radius | Border |
 | --- | --- | --- |
-| Paper column | `0` | Solid 1px |
-| Subsection block | `0` | `3px solid` left accent bar in `--color-accent` |
-| Aside / annotation card | `0` | Dashed 1px + corner brackets |
-| Buttons (platform) | `999px` pill or `6px` | Solid or translucent |
-| Inputs | `6px` | Solid translucent |
-| Builder window chrome | `8px` | Solid 1px |
+| Paper column | `0` | `1px solid` on all sides |
+| Platform card / panel | `0` | `1px solid` on all sides |
+| Aside / annotation card | `0` | Dashed `1px` on all sides + corner brackets |
+| Buttons (platform) | `0` | `1px solid` |
+| Inputs | `0` | `1px solid` |
+| Builder window chrome | `0` | `1px solid` |
+| Pipeline step node | `0` | `1px solid` |
 
-Reserve **999px** for pills (step nodes, tags, primary CTAs). Do not mix sharp paper corners with large rounded cards in the same view — pick one family per surface type.
+**Portfolio-only:** resume subsections on `syedhamzazaidi.github.io` may use a `3px` left accent bar (`paper-subsection`). Do not port that pattern to platform landing, builder, or scaffold UI — keep borders even.
+
+Do not use pills, rounded cards, or mixed corner radii in platform surfaces. Sharp corners everywhere.
 
 **Connectors:** dashed SVG paths with round caps, open-circle endpoints, and small arrow ticks at the destination. Color: `rgba(56, 189, 248, 0.78)`.
 
@@ -175,7 +180,7 @@ Mono uppercase heading with bottom rule. Gap below heading: `0.55rem`. Section m
 
 ### Subsection (`paper-subsection`)
 
-Left accent bar (`3px solid --color-accent`), `1rem` padding-left. Header row: title + org on the left, date in mono on the right. Lists at `0.875rem`, tight line-height (`1.48`).
+**Portfolio only:** optional `3px solid` left accent in `--color-accent` with `1rem` padding-left. Platform cards use uniform `1px` borders instead. Header row: title + org on the left, date in mono on the right. Lists at `0.875rem`, tight line-height (`1.48`).
 
 ### Aside card (`paper-aside-card`)
 
@@ -188,7 +193,7 @@ Annotation frame for context that should not interrupt the main column.
 
 ### REF callout
 
-Tag format: `REF·A`, `REF·B`, … Mono, uppercase, bordered pill on `--color-surface-muted`. Connector: dashed horizontal leader from subsection to aside.
+Tag format: `REF·A`, `REF·B`, … Mono, uppercase, rectangular tag on `--color-surface-muted` with `1px solid` border. Connector: dashed horizontal leader from subsection to aside.
 
 ### Metadata strip (`paper-meta`)
 
@@ -206,11 +211,11 @@ Heights: 32px compact, 40px default, 48px hero. Focus: `outline: 2px solid --col
 
 ### Inputs
 
-`--color-surface-muted` fill, `1px solid rgba(191, 219, 254, 0.32)`, 6px radius, DM Sans body. Placeholder in `--color-muted`.
+`--color-surface-muted` fill, `1px solid rgba(191, 219, 254, 0.32)`, `border-radius: 0`, DM Sans body. Placeholder in `--color-muted`.
 
 ### Pipeline / step nodes (agent loop)
 
-Horizontal step pills: mono step number (`01`–`05`) in accent + sans label. Forward arrows in accent. Feedback loop: text caption or connector — keep it minimal; do not overpower the row.
+Horizontal rectangular step chips: mono step number (`01`–`05`) in accent + sans label, `1px solid` border, no rounding. Forward arrows in accent. Feedback loop: text caption only — keep it minimal.
 
 ### Builder chrome
 
@@ -220,9 +225,9 @@ Three-panel layout: project tree · chat · preview. Optional window chrome bar 
 
 | State | Style |
 | --- | --- |
-| `enabled` | Solid accent pill |
-| `stub` | Dashed border, `--color-warning` text |
-| `disabled` | `--color-muted`, no border |
+| `enabled` | Solid accent fill, `border-radius: 0` |
+| `stub` | Dashed `1px` border, `--color-warning` text |
+| `disabled` | `--color-muted`, `1px solid` border |
 
 ## Voice & Content
 
@@ -244,7 +249,7 @@ Platform marketing may use slightly longer prose than the resume, but section he
 
 - Use DM Sans for reading and DM Mono for anything structural (labels, dates, code, REF tags).
 - Keep the paper column narrow; let the grid field breathe on wide screens.
-- Use left accent bars and dashed frames to mark annotated or secondary content.
+- Use uniform `1px` borders on all box edges; dashed frames + corner brackets only for annotations.
 - Float margin asides only at `≥1180px`; stack them inline below that.
 - Pair state color with text or an icon — never color alone.
 - Show `:focus-visible` rings on every interactive element.
@@ -252,8 +257,9 @@ Platform marketing may use slightly longer prose than the resume, but section he
 
 **Don't**
 
-- Do not use heavy gradients or neon glow as the primary hierarchy tool (subtle mesh on hero only).
-- Do not mix Instrument Sans / green-accent landing tokens with Blueprint in the same view — migrate platform UI to these tokens.
+- Do not use heavy gradients or neon glow as the primary hierarchy tool.
+- Do not use rounded corners on platform cards, buttons, or inputs — `border-radius: 0` everywhere.
+- Do not use thicker left (or any single-edge) borders to mark cards; use full `1px solid` perimeters or dashed annotation frames.
 - Do not put corner brackets on every card; reserve them for annotations and diagrams.
 - Do not use `--color-muted` for primary actions or critical warnings.
 - Do not animate loops on static content pages.
@@ -265,7 +271,7 @@ Platform marketing may use slightly longer prose than the resume, but section he
 | Surface | Status | Notes |
 | --- | --- | --- |
 | Portfolio reference | Canonical | `syedhamzazaidi.github.io` — Blueprint theme |
-| Platform landing | Migrate | Replace `--accent: #22c55e` / Instrument Sans with Blueprint tokens |
+| Platform landing | Done | Blueprint tokens; sharp corners, uniform borders |
 | Builder UI | Migrate | Align chrome, panels, and step labels to paper + mono pattern |
 | Generated scaffold | Partial | shadcn/Tailwind; map Tailwind theme to Blueprint tokens in `tailwind.config` |
 
@@ -293,6 +299,8 @@ Platform marketing may use slightly longer prose than the resume, but section he
 
   --paper-width: 760px;
   --section-gap: 2.15rem;
+  --radius: 0;
+  --radius-lg: 0;
 }
 ```
 
