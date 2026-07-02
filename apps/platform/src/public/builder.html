@@ -3,23 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Builder — App Builder</title>
+    <title>Builder — AutoApp</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/builder.css" />
   </head>
   <body>
     <header class="builder-header">
       <a class="logo" href="/">
         <span class="logo-mark">◆</span>
-        App Builder
+        AutoApp
       </a>
       <span class="header-title">Builder</span>
       <span class="header-flow">Spec → Context → Plan → Build → Preview</span>
       <div class="header-actions">
         <span id="userLabel" class="user-label"></span>
-        <button id="sign-out" type="button" class="sign-out-btn">Sign out</button>
+        <button id="sign-out" type="button" class="btn btn-ghost btn-sm">Sign out</button>
         <a class="back-link" href="/">← Landing</a>
       </div>
     </header>
@@ -45,7 +45,7 @@
             <input type="checkbox" id="planMode" />
             Plan mode
           </label>
-          <button id="send" type="button">Send</button>
+          <button id="send" type="button" class="btn btn-primary btn-sm">Send</button>
         </div>
       </div>
       <div class="panel panel-preview">

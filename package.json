@@ -1,5 +1,5 @@
 {
-  "name": "app-builder",
+  "name": "autoapp",
   "private": true,
   "scripts": {
     "build": "turbo run build",

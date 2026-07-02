@@ -1,6 +1,6 @@
 # Lovable Platform System Design
 
-Architecture documentation for [Lovable.dev](https://lovable.dev) — the AI-powered full-stack app builder.
+Architecture documentation for [AutoApp](https://github.com/syedhamzazaidi/AutoApp) — an open-source, Lovable-style AI-powered full-stack app platform.
 
 **POC focus:** Generated apps in this repo target **free-tier hosting** (Vercel Hobby + Supabase free). Cold starts and manual Supabase restores are acceptable; see [system-design.md §7](./system-design.md#7-infrastructure--devops).
 

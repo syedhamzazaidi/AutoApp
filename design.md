@@ -272,7 +272,7 @@ Platform marketing may use slightly longer prose than the resume, but section he
 | --- | --- | --- |
 | Portfolio reference | Canonical | `syedhamzazaidi.github.io` — Blueprint theme |
 | Platform landing | Done | Blueprint tokens; sharp corners, uniform borders |
-| Builder UI | Migrate | Align chrome, panels, and step labels to paper + mono pattern |
+| Builder UI | Done | Blueprint tokens via `blueprint.css`; chrome, panels, chat, and login aligned |
 | Generated scaffold | Partial | shadcn/Tailwind; map Tailwind theme to Blueprint tokens in `tailwind.config` |
 
 **Quick start** — add to any Endian CSS entry point:

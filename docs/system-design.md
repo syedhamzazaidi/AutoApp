@@ -347,7 +347,7 @@ Protected block paths and agent configuration boundaries are defined in [Reusabl
 
 ```mermaid
 quadrantChart
-  title AI App Builders Positioning
+  title AI App Platform Positioning
   x-axis LowCodeLockIn --> FullCodeOwnership
   y-axis FrontendOnly --> FullStackBackend
   quadrant-1 LovableTarget

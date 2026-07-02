@@ -29,7 +29,7 @@ describe("platform server auth", () => {
   it("serves landing page without auth", async () => {
     const res = await fetch(`${baseUrl}/`);
     expect(res.status).toBe(200);
-    expect(await res.text()).toContain("App Builder");
+    expect(await res.text()).toContain("AutoApp");
   });
 
   it("allows builder access when auth is disabled", async () => {
