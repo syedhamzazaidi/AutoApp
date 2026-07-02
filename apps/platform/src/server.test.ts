@@ -35,7 +35,22 @@ describe("platform server auth", () => {
   it("allows builder access when auth is disabled", async () => {
     const res = await fetch(`${baseUrl}/builder`);
     expect(res.status).toBe(200);
-    expect(await res.text()).toContain("Builder");
+    const html = await res.text();
+    expect(html).toContain("Builder");
+    expect(html).toContain("profile-toggle");
+    expect(html).toContain("profile-dropdown");
+    expect(html).toContain('id="project-panel"');
+    expect(html).toContain("hidden");
+    expect(html).toContain("builder-chat-bar");
+    expect(html).not.toContain("panel-chat");
+  });
+
+  it("returns dev user for /api/me when auth is disabled", async () => {
+    const res = await fetch(`${baseUrl}/api/me`);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.user).toEqual({ email: "dev@local", name: "Dev User" });
+    expect(body.authEnabled).toBe(false);
   });
 
   it("returns messages for authenticated-disabled mode", async () => {
