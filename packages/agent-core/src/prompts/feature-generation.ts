@@ -110,6 +110,9 @@ Use these block contracts (imports only, never rewrite implementations):
 - supabase from @/integrations/supabase/client
 - uploadFile(), getPublicUrl() from @/features/storage/upload
 - ProtectedRoute requireAdmin from @/features/admin/rbac
+- Link, Navigate, useNavigate from react-router-dom (Link uses prop "to", never "href")
 
 Generate domain code in src/pages, src/services, src/components only.
-Never modify protected block internals.`;
+Never modify protected block internals.
+Every TSX file must include all imports it uses. Do not rely on globals.
+If editableFiles in project context already contains a path, use action "update" for that file.`;

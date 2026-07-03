@@ -1,6 +1,7 @@
 import { corsHeaders, handleCors } from "../_shared/cors.ts";
 import { createAdminClient } from "../_shared/supabase-admin.ts";
 import { callAI } from "../_shared/ai-gateway.ts";
+import { recordAiUsage } from "../_shared/record-ai-usage.ts";
 
 Deno.serve(async (req) => {
   const cors = handleCors(req);
@@ -52,10 +53,17 @@ Deno.serve(async (req) => {
     });
   }
 
-  await supabase.from("ai_usage").insert({
-    user_id: user.id,
+  await recordAiUsage(supabase, {
+    customerId: user.id,
+    customerType: "app",
     endpoint: "analyze-plant",
-    tokens: aiResult.tokens,
+    source: "edge_fn",
+    model: aiResult.model,
+    promptTokens: aiResult.promptTokens,
+    completionTokens: aiResult.completionTokens,
+    totalTokens: aiResult.tokens,
+    latencyMs: aiResult.latencyMs,
+    userId: user.id,
   });
 
   return new Response(

@@ -12,7 +12,9 @@
     "blocks:activate": "pnpm --filter @app/block-registry activate",
     "blocks:deactivate": "pnpm --filter @app/block-registry deactivate",
     "policy:check-protected-paths": "node scripts/check-protected-paths.mjs",
-    "export:scaffold": "node scripts/export-scaffold.mjs"
+    "export:scaffold": "node scripts/export-scaffold.mjs",
+    "test:openrouter-model": "pnpm --filter @app/ai-gateway test:model",
+    "try:free-models": "pnpm --filter @app/ai-gateway try:free-models"
   },
   "devDependencies": {
     "turbo": "^2.3.3",

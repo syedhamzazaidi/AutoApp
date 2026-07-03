@@ -53,15 +53,45 @@ Deno.serve(async (req) => {
     }
     case "admin-metrics/ai":
     case "ai": {
-      const { count: requests30d } = await supabase
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const { data: usageRows, count: requests30d } = await supabase
         .from("ai_usage")
-        .select("*", { count: "exact", head: true });
+        .select("tokens, prompt_tokens, completion_tokens, latency_ms, created_at, customer_id, customer_type", {
+          count: "exact",
+        });
+
+      const rows = usageRows ?? [];
+      const requests7d = rows.filter((row) => row.created_at >= sevenDaysAgo).length;
+      const totalTokens = rows.reduce((sum, row) => sum + (row.tokens ?? 0), 0);
+      const latencyRows = rows.filter((row) => typeof row.latency_ms === "number");
+      const avgLatencyMs = latencyRows.length
+        ? Math.round(
+            latencyRows.reduce((sum, row) => sum + (row.latency_ms ?? 0), 0) / latencyRows.length,
+          )
+        : 0;
+
+      const customerTotals = new Map<string, number>();
+      for (const row of rows) {
+        if (!row.customer_id) continue;
+        const key = `${row.customer_type}:${row.customer_id}`;
+        customerTotals.set(key, (customerTotals.get(key) ?? 0) + (row.tokens ?? 0));
+      }
+
+      const topCustomers = [...customerTotals.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([key, tokens]) => {
+          const [customerType, customerId] = key.split(":");
+          return { customerType, customerId, tokens };
+        });
+
       result = {
         metrics: {
-          requests_7d: Math.floor((requests30d ?? 0) / 4),
-          requests_30d: requests30d ?? 0,
-          total_tokens: (requests30d ?? 0) * 50,
-          avg_latency_ms: 450,
+          requests_7d: requests7d,
+          requests_30d: requests30d ?? rows.length,
+          total_tokens: totalTokens,
+          avg_latency_ms: avgLatencyMs,
+          top_customers: topCustomers,
         },
         chart: [],
       };

@@ -20,6 +20,9 @@ importers:
       '@app/agent-core':
         specifier: workspace:*
         version: link:../../packages/agent-core
+      '@app/ai-gateway':
+        specifier: workspace:*
+        version: link:../../packages/ai-gateway
       '@app/block-registry':
         specifier: workspace:*
         version: link:../../packages/block-registry
@@ -149,6 +152,37 @@ importers:
       '@types/node':
         specifier: ^22.10.2
         version: 22.20.0
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.0)(jsdom@25.0.1)
+
+  packages/ai-gateway:
+    dependencies:
+      '@app/agent-core':
+        specifier: workspace:*
+        version: link:../agent-core
+      '@app/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@openrouter/agent':
+        specifier: ^0.7.2
+        version: 0.7.2
+      '@supabase/supabase-js':
+        specifier: ^2.49.1
+        version: 2.110.0
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.20.0
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
+      tsx:
+        specifier: ^4.19.2
+        version: 4.22.4
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
@@ -876,6 +910,12 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@openrouter/agent@0.7.2':
+    resolution: {integrity: sha512-G3Rp4iPKP7RQSJ+k7ea2+fDOJXUhsZNmiKoz8Ddlo7fY9KDdNiP4xKA0IA/9Y27FJjb2kagHvP9Dw2ycEwlzmA==}
+
+  '@openrouter/sdk@0.13.22':
+    resolution: {integrity: sha512-BLf0CQ5eWUDse/d9phlwbj4o7X7F5x7Whdcj07lxBN5Q3R3g08OpjmgyDT/8c0Bd77CsrR8nqSjhRMK5p2sFzg==}
 
   '@opentelemetry/semantic-conventions@1.41.1':
     resolution: {integrity: sha512-/UhIkaZgPutTFmQ7RnIJGgDXZmtEJ7Dvi86xNTFWcnRxVRNk/aotsqDJYeEvDP+FSMB2SdW+pQzNMcWP0rwuNA==}
@@ -3141,6 +3181,15 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@openrouter/agent@0.7.2':
+    dependencies:
+      '@openrouter/sdk': 0.13.22
+      zod: 4.4.3
+
+  '@openrouter/sdk@0.13.22':
+    dependencies:
+      zod: 3.25.76
 
   '@opentelemetry/semantic-conventions@1.41.1': {}
 

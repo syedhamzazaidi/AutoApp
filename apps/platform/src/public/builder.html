@@ -11,6 +11,10 @@
   </head>
   <body>
     <header class="builder-header">
+      <a class="logo" href="/" aria-label="AutoApp home">
+        <span class="logo-mark" aria-hidden="true">◆</span>
+        AutoApp
+      </a>
       <div class="profile-menu">
         <button
           id="profile-toggle"
@@ -34,9 +38,68 @@
         </div>
       </div>
     </header>
+    <div class="builder-url-bar" role="toolbar" aria-label="Preview controls">
+      <button
+        id="project-toggle"
+        type="button"
+        class="btn btn-ghost btn-sm url-bar-project"
+        aria-expanded="false"
+        aria-controls="project-panel"
+      >
+        Project
+      </button>
+      <div class="url-bar-nav">
+        <button
+          id="preview-back"
+          type="button"
+          class="btn btn-ghost btn-sm url-bar-nav-btn"
+          aria-label="Go back"
+          disabled
+        >
+          ←
+        </button>
+        <button
+          id="preview-forward"
+          type="button"
+          class="btn btn-ghost btn-sm url-bar-nav-btn"
+          aria-label="Go forward"
+          disabled
+        >
+          →
+        </button>
+        <button
+          id="preview-refresh"
+          type="button"
+          class="btn btn-ghost btn-sm url-bar-nav-btn"
+          aria-label="Refresh preview"
+        >
+          ↻
+        </button>
+      </div>
+      <div class="url-bar-field">
+        <input
+          id="preview-url"
+          type="text"
+          class="url-bar-input"
+          readonly
+          value="http://localhost:5173"
+          aria-label="Preview URL"
+        />
+      </div>
+    </div>
     <main class="builder-main">
-      <div id="project-panel" class="panel panel-tree" hidden>
-        <h2>Project</h2>
+      <div id="project-panel" class="project-panel" hidden>
+        <div class="project-panel-header">
+          <h2>Project</h2>
+          <button
+            id="project-close"
+            type="button"
+            class="btn btn-ghost btn-sm project-close"
+            aria-label="Hide project"
+          >
+            ×
+          </button>
+        </div>
         <div class="file-tree">
           apps/scaffold/<br />
           ├── src/pages/<br />
@@ -47,33 +110,32 @@
           &nbsp;&nbsp;&nbsp;&nbsp;└── functions/
         </div>
       </div>
-      <div class="panel panel-preview">
-        <div class="panel-header">
-          <h2>Preview</h2>
-          <button
-            id="project-toggle"
-            type="button"
-            class="btn btn-ghost btn-sm project-toggle"
-            aria-expanded="false"
-            aria-controls="project-panel"
-          >
-            Project
-          </button>
-        </div>
-        <iframe src="http://localhost:5173" title="App preview"></iframe>
+      <div class="preview-canvas">
+        <iframe id="preview-iframe" src="http://localhost:5173" title="App preview"></iframe>
+        <footer id="chat-bar" class="builder-chat-bar">
+          <div id="messages" class="messages" aria-live="polite"></div>
+          <div class="input-area">
+            <button
+              id="chat-toggle"
+              type="button"
+              class="btn btn-ghost btn-sm chat-toggle"
+              aria-label="Toggle chat"
+              aria-expanded="false"
+              aria-controls="messages"
+              hidden
+            >
+              <span class="chat-toggle-chevron" aria-hidden="true">▲</span>
+            </button>
+            <div class="prompt-wrap">
+              <input id="prompt" type="text" placeholder="Add a plants page that lists my plants..." />
+              <button id="send" type="button" class="prompt-send btn btn-ghost" aria-label="Send">
+                <span class="prompt-send-icon" aria-hidden="true">→</span>
+              </button>
+            </div>
+          </div>
+        </footer>
       </div>
     </main>
-    <footer id="chat-bar" class="builder-chat-bar">
-      <div id="messages" class="messages" aria-live="polite"></div>
-      <div class="input-area">
-        <input id="prompt" type="text" placeholder="Add a plants page that lists my plants..." />
-        <label class="plan-toggle">
-          <input type="checkbox" id="planMode" />
-          Plan mode
-        </label>
-        <button id="send" type="button" class="btn btn-primary btn-sm">Send</button>
-      </div>
-    </footer>
     <script type="module" src="/builder.js"></script>
   </body>
 </html>

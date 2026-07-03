@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { BrowserRouter, useRoutes } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PreviewNavigationReporter } from "@/components/PreviewNavigationReporter";
 import { ToasterProvider } from "@/components/ui/use-toast";
 import { AuthProvider } from "@/features/auth";
 import { AppLayout } from "@/layouts/AppLayout";
@@ -17,6 +18,7 @@ export default function App() {
       <ToasterProvider>
         <AuthProvider>
           <BrowserRouter>
+            <PreviewNavigationReporter />
             <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
               <AppRoutes />
             </Suspense>

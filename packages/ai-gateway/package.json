@@ -1,27 +1,30 @@
 {
-  "name": "@app/platform",
-  "private": true,
+  "name": "@app/ai-gateway",
   "version": "0.0.1",
+  "private": true,
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
-    "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'no lint configured'",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:model": "tsx scripts/test-free-model.ts",
+    "try:free-models": "tsx scripts/try-free-models.ts"
   },
   "dependencies": {
     "@app/agent-core": "workspace:*",
-    "@app/ai-gateway": "workspace:*",
-    "@app/block-registry": "workspace:*",
     "@app/shared": "workspace:*",
-    "better-auth": "^1.6.23",
-    "dotenv": "^17.4.2",
-    "express": "^4.21.2"
+    "@openrouter/agent": "^0.7.2",
+    "@supabase/supabase-js": "^2.49.1"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
+    "dotenv": "^17.4.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

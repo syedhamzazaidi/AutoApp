@@ -1,38 +1,22 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function IndexPage() {
+export default function Home() {
   return (
-    <div className="container mx-auto px-4 py-16">
-      <div className="mx-auto max-w-2xl text-center">
-        <h1 className="text-4xl font-bold tracking-tight">Plant Pal</h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          Upload a photo of your plant and get an AI-powered health analysis.
-        </p>
-        <div className="mt-8 flex justify-center gap-4">
-          <Button asChild size="lg">
-            <Link to="/analyze">Analyze a plant</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link to="/history">View history</Link>
-          </Button>
-        </div>
-      </div>
-      <div className="mx-auto mt-16 grid max-w-4xl gap-6 md:grid-cols-3">
-        {[
-          { title: "Upload", desc: "Snap a photo of your plant" },
-          { title: "Analyze", desc: "AI checks health and gives tips" },
-          { title: "Track", desc: "View your plant check history" },
-        ].map((f) => (
-          <Card key={f.title}>
-            <CardHeader>
-              <CardTitle>{f.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="text-muted-foreground">{f.desc}</CardContent>
-          </Card>
-        ))}
-      </div>
+    <div className="flex min-h-screen flex-col items-center justify-center space-y-6">
+      <h1 className="text-center text-4xl font-bold">My Kitchen</h1>
+      <p className="max-w-md text-lg text-gray-600">Fresh, homemade meals prepared with love.</p>
+      <Link
+        to="/menu"
+        className="inline-block rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700"
+      >
+        View Menu
+      </Link>
+      <Link
+        to="/contact"
+        className="inline-block rounded-lg bg-gray-200 px-4 py-2 text-gray-800 transition hover:bg-gray-300"
+      >
+        Contact Us
+      </Link>
     </div>
   );
 }

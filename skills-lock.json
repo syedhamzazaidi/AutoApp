@@ -36,6 +36,12 @@
       "sourceType": "github",
       "skillPath": "better-auth/twoFactor/SKILL.md",
       "computedHash": "7e297aaf887e11fdc03e52bdbf44974e161e8f7c393170ced7dc66cace4f6d46"
+    },
+    "openrouter-typescript-sdk": {
+      "source": "OpenRouterTeam/skills",
+      "sourceType": "github",
+      "skillPath": "skills/openrouter-typescript-sdk/SKILL.md",
+      "computedHash": "a37f891099855312ad941fc722ad2ccdf515c0bf4fdf773cd8b13a520f68b1d7"
     }
   }
 }

@@ -877,6 +877,8 @@ body {
 .cta-section {
   position: relative;
   z-index: 1;
+  max-width: var(--content-width);
+  margin: 0 auto;
   padding: 2rem 2rem 5rem;
 }
 

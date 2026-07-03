@@ -66,5 +66,7 @@ export interface AgentTurnResult {
   patches: FilePatch[];
   manifestUpdates?: Partial<BlocksManifest>;
   buildOutput?: string;
+  buildFailed?: boolean;
+  buildError?: string;
   previewUrl?: string;
 }

@@ -82,22 +82,43 @@ export interface Database {
         Row: {
           id: string;
           user_id: string | null;
+          customer_id: string | null;
+          customer_type: "app" | "builder";
           endpoint: string;
+          source: "builder" | "edge_fn";
+          model: string | null;
+          prompt_tokens: number;
+          completion_tokens: number;
           tokens: number;
+          latency_ms: number | null;
           created_at: string;
         };
         Insert: {
           id?: string;
           user_id?: string | null;
+          customer_id?: string | null;
+          customer_type?: "app" | "builder";
           endpoint: string;
+          source?: "builder" | "edge_fn";
+          model?: string | null;
+          prompt_tokens?: number;
+          completion_tokens?: number;
           tokens?: number;
+          latency_ms?: number | null;
           created_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string | null;
+          customer_id?: string | null;
+          customer_type?: "app" | "builder";
           endpoint?: string;
+          source?: "builder" | "edge_fn";
+          model?: string | null;
+          prompt_tokens?: number;
+          completion_tokens?: number;
           tokens?: number;
+          latency_ms?: number | null;
           created_at?: string;
         };
         Relationships: [];

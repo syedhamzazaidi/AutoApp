@@ -54,14 +54,14 @@ export const RECIPES: Record<string, ActivationRecipe> = {
       ...manifest,
       blocks: {
         ...manifest.blocks,
-        ai: { state: "enabled", gateway: "lovable" },
+        ai: { state: "enabled", gateway: "openrouter" },
       },
     }),
     onDeactivate: (manifest) => ({
       ...manifest,
       blocks: {
         ...manifest.blocks,
-        ai: { state: "stub", gateway: "lovable" },
+        ai: { state: "stub", gateway: "openrouter" },
       },
     }),
   },
@@ -125,7 +125,7 @@ export function getDefaultManifest(): BlocksManifest {
       rls: { state: "stub" },
       storage: { state: "stub", buckets: ["uploads"] },
       edgeFunctions: { state: "stub" },
-      ai: { state: "stub", gateway: "lovable" },
+      ai: { state: "stub", gateway: "openrouter" },
       realtime: { state: "stub" },
       email: { state: "stub" },
       rbac: { state: "stub" },

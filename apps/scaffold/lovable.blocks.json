@@ -39,7 +39,7 @@
     },
     "ai": {
       "state": "enabled",
-      "gateway": "lovable"
+      "gateway": "openrouter"
     },
     "realtime": {
       "state": "stub"
