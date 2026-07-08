@@ -34,7 +34,7 @@ function getSupabaseAdmin(): SupabaseClient | null {
   }
 
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) {
     supabaseAdmin = null;
     return null;
@@ -48,7 +48,7 @@ export async function recordAiUsage(record: AiUsageRecord): Promise<void> {
   const supabase = getSupabaseAdmin();
   if (!supabase) {
     console.warn(
-      "[ai-gateway] Usage not recorded — set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY",
+      "[ai-gateway] Usage not recorded — set SUPABASE_URL and SUPABASE_SECRET_KEY",
     );
     return;
   }

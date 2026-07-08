@@ -94,11 +94,11 @@ spec:
                 secretKeyRef:
                   name: platform-secrets
                   key: SUPABASE_URL
-            - name: SUPABASE_SERVICE_ROLE_KEY
+            - name: SUPABASE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: platform-secrets
-                  key: SUPABASE_SERVICE_ROLE_KEY
+                  key: SUPABASE_SECRET_KEY
           readinessProbe:
             httpGet:
               path: /
