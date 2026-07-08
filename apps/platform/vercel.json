@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter @app/platform build",
+  "framework": null,
+  "rewrites": [
+    { "source": "/builder", "destination": "/builder.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/api/(.*)", "destination": "/api/index" }
+  ],
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": "../../packages/**"
+    }
+  }
+}
