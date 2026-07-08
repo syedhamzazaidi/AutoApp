@@ -30,11 +30,18 @@ export interface SandboxProvisioner {
   getStatus(projectId: string): Promise<SandboxProvisionerStatus>;
 }
 
-export function buildPreviewUrl(projectId: string, previewDomain: string): string {
-  return `http://${projectId}.${previewDomain}`;
+export function buildPreviewHost(projectId: string, previewDomain: string): string {
+  return `${projectId}.${previewDomain}`;
 }
 
-export function sandboxResourceName(projectId: string, kind: "pvc" | "secret" | "deployment" | "service"): string {
+export function buildPreviewUrl(projectId: string, previewDomain: string): string {
+  return `http://${buildPreviewHost(projectId, previewDomain)}`;
+}
+
+export function sandboxResourceName(
+  projectId: string,
+  kind: "pvc" | "secret" | "deployment" | "service" | "ingress" | "certificate",
+): string {
   return `sandbox-${projectId}-${kind}`;
 }
 

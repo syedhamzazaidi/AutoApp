@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { getMigrations } from "better-auth/db/migration";
 import pg from "pg";
 
 const port = Number(process.env.PORT ?? 3001);
@@ -36,7 +37,7 @@ function createDatabasePool(): pg.Pool | undefined {
 
 const database = createDatabasePool();
 
-export const auth = betterAuth({
+const authConfig = {
   baseURL,
   secret: secret ?? "dev-insecure-secret-change-me",
   ...(database ? { database } : {}),
@@ -49,4 +50,15 @@ export const auth = betterAuth({
           },
         }
       : {},
-});
+};
+
+export const auth = betterAuth(authConfig);
+
+export async function runAuthMigrations(): Promise<void> {
+  if (authDisabled || !database) {
+    return;
+  }
+
+  const { runMigrations } = await getMigrations(authConfig);
+  await runMigrations();
+}

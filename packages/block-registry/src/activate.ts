@@ -9,6 +9,13 @@ export interface ActivateOptions {
   runMigrations?: boolean;
 }
 
+function canRunBlockMigrations(): boolean {
+  if (process.env.DISABLE_BLOCK_DB_RESET === "1") return false;
+  // Sandbox pods set WORKSPACE_ROOT; never reset shared Supabase from tenant isolation boundary.
+  if (process.env.WORKSPACE_ROOT) return false;
+  return true;
+}
+
 export function activateBlock(blockId: string, options: ActivateOptions = {}): BlocksManifest {
   const recipe = RECIPES[blockId];
   if (!recipe) {
@@ -20,7 +27,7 @@ export function activateBlock(blockId: string, options: ActivateOptions = {}): B
   updated.blocks[blockId] = { ...updated.blocks[blockId], state: "enabled" };
   writeManifest(updated, options.scaffoldRoot);
 
-  if (options.runMigrations && recipe.migrations?.length) {
+  if (options.runMigrations && recipe.migrations?.length && canRunBlockMigrations()) {
     const supabaseDir = resolve(options.scaffoldRoot ?? "apps/scaffold", "supabase");
     try {
       execSync("supabase db reset", { cwd: supabaseDir, stdio: "inherit" });

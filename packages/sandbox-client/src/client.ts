@@ -11,6 +11,10 @@ import type {
 
 const DEFAULT_NAMESPACE = "endian-sandboxes";
 
+function sandboxServiceName(projectId: string): string {
+  return `sandbox-${projectId}-service`;
+}
+
 export function resolveSandboxServiceUrl(
   projectId: string,
   options: Pick<SandboxClientOptions, "namespace" | "urlOverride"> = {},
@@ -20,7 +24,7 @@ export function resolveSandboxServiceUrl(
   }
 
   const namespace = options.namespace ?? process.env.SANDBOX_NAMESPACE ?? DEFAULT_NAMESPACE;
-  return `http://sandbox-${projectId}.${namespace}.svc.cluster.local:3002`;
+  return `http://${sandboxServiceName(projectId)}.${namespace}.svc.cluster.local:3002`;
 }
 
 export function createSandboxClient(options: SandboxClientOptions): SandboxClient {

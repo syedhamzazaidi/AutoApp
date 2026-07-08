@@ -51,6 +51,7 @@ export interface Database {
       plant_checks: {
         Row: {
           id: string;
+          project_id: string;
           user_id: string;
           plant_name: string | null;
           image_path: string;
@@ -60,6 +61,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
+          project_id: string;
           user_id: string;
           plant_name?: string | null;
           image_path: string;
@@ -69,6 +71,7 @@ export interface Database {
         };
         Update: {
           id?: string;
+          project_id?: string;
           user_id?: string;
           plant_name?: string | null;
           image_path?: string;

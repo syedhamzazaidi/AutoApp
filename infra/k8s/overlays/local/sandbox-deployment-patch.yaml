@@ -1,0 +1,25 @@
+# Reference patch for sandbox provisioner on kind (no gVisor, local images).
+# Apply these substitutions when rendering per-project manifests from base/sandbox/deployment-template.yaml:
+#
+# - Remove spec.template.spec.runtimeClassName (kind uses runc)
+# - Set imagePullPolicy: Never on init and app containers
+# - Use images: endian/sandbox:local
+# - Set preview host: {projectId}.preview.localtest.me
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sandbox-PROJECT_ID
+  namespace: endian-sandboxes
+spec:
+  template:
+    spec:
+      runtimeClassName: null
+      initContainers:
+        - name: seed-scaffold
+          image: endian/sandbox:local
+          imagePullPolicy: Never
+      containers:
+        - name: sandbox
+          image: endian/sandbox:local
+          imagePullPolicy: Never

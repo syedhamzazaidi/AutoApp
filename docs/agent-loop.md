@@ -76,7 +76,25 @@ The platform encourages **small, scoped prompts** rather than monolithic request
 
 ### Sandboxed execution
 
-Generated code runs in an **isolated preview environment** before the user sees it. Failed builds never replace a working preview artifact; the last good build remains addressable for revert.
+Generated code runs in an **isolated per-project GKE/kind pod** before the user sees it. The control plane plans patches (classify + LLM on platform); **apply + build + Vite preview** run in the tenant sandbox via `SandboxClient` → `POST /api/patches`. Failed builds never replace a working preview artifact; the last good build remains addressable for revert.
+
+```mermaid
+sequenceDiagram
+  participant BuilderUI
+  participant Platform
+  participant SandboxPod
+  participant OpenRouter
+
+  BuilderUI->>Platform: POST /api/projects/:id/agent-turn/stream
+  Platform->>SandboxPod: GET /api/files (HMAC)
+  Platform->>OpenRouter: generate patches
+  Platform->>SandboxPod: POST /api/patches
+  SandboxPod->>SandboxPod: apply + pnpm build
+  SandboxPod-->>Platform: build result
+  Platform-->>BuilderUI: SSE done + refresh preview iframe
+```
+
+See [system-design.md § GKE per-project sandboxes](./system-design.md) for provisioning, network policy, and secret boundaries.
 
 ### Validation harness
 

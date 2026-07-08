@@ -1,5 +1,12 @@
-import type { V1Deployment, V1PersistentVolumeClaim, V1Secret, V1Service } from "@kubernetes/client-node";
+import type {
+  V1Deployment,
+  V1Ingress,
+  V1PersistentVolumeClaim,
+  V1Secret,
+  V1Service,
+} from "@kubernetes/client-node";
 import {
+  buildPreviewHost,
   sandboxLabels,
   sandboxResourceName,
   sandboxSelectorLabels,
@@ -11,6 +18,7 @@ export interface SandboxManifestSet {
   secret: V1Secret;
   deployment: V1Deployment;
   service: V1Service;
+  ingress: V1Ingress;
 }
 
 export interface BuildManifestOptions {
@@ -138,5 +146,49 @@ export function buildSandboxManifests(options: BuildManifestOptions): SandboxMan
     },
   };
 
-  return { pvc, secret, deployment, service };
+  const previewHost = buildPreviewHost(projectId, options.previewDomain);
+  const tlsSecretName = `${sandboxResourceName(projectId, "ingress")}-tls`;
+
+  const ingress: V1Ingress = {
+    apiVersion: "networking.k8s.io/v1",
+    kind: "Ingress",
+    metadata: {
+      name: sandboxResourceName(projectId, "ingress"),
+      namespace,
+      labels,
+      annotations: {
+        "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+      },
+    },
+    spec: {
+      ingressClassName: "nginx",
+      tls: [
+        {
+          hosts: [previewHost],
+          secretName: tlsSecretName,
+        },
+      ],
+      rules: [
+        {
+          host: previewHost,
+          http: {
+            paths: [
+              {
+                path: "/",
+                pathType: "Prefix",
+                backend: {
+                  service: {
+                    name: sandboxResourceName(projectId, "service"),
+                    port: { number: 5173 },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  };
+
+  return { pvc, secret, deployment, service, ingress };
 }

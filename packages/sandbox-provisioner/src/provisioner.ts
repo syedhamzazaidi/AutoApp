@@ -15,6 +15,32 @@ const DEFAULT_PVC_SIZE = "5Gi";
 const DEFAULT_STORAGE_CLASS = "standard";
 const DEFAULT_SANDBOX_IMAGE = "endian-sandbox:latest";
 
+function isAlreadyExistsError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes("AlreadyExists") || message.includes("409");
+}
+
+async function createIfNotExists<T>(create: () => Promise<T>): Promise<void> {
+  try {
+    await create();
+  } catch (error) {
+    if (!isAlreadyExistsError(error)) {
+      throw error;
+    }
+  }
+}
+
+async function deleteIfExists(deleteFn: () => Promise<unknown>): Promise<void> {
+  try {
+    await deleteFn();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!message.includes("404") && !message.includes("not found")) {
+      throw error;
+    }
+  }
+}
+
 function mapPodPhase(phase?: string): SandboxStatus {
   switch (phase) {
     case "Running":
@@ -43,6 +69,7 @@ export function createSandboxProvisioner(options: SandboxProvisionerOptions = {}
 
   const core = kc.makeApiClient(k8s.CoreV1Api);
   const apps = kc.makeApiClient(k8s.AppsV1Api);
+  const networking = kc.makeApiClient(k8s.NetworkingV1Api);
 
   const namespace = options.namespace ?? process.env.SANDBOX_NAMESPACE ?? DEFAULT_NAMESPACE;
   const previewDomain = options.previewDomain ?? process.env.PREVIEW_DOMAIN ?? "preview.localtest.me";
@@ -96,71 +123,47 @@ export function createSandboxProvisioner(options: SandboxProvisionerOptions = {}
         previewDomain,
       });
 
-      try {
-        await core.createNamespacedPersistentVolumeClaim({ namespace, body: manifests.pvc });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        if (!message.includes("AlreadyExists") && !message.includes("409")) {
-          throw error;
-        }
-      }
-
-      try {
-        await core.createNamespacedSecret({ namespace, body: manifests.secret });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        if (!message.includes("AlreadyExists") && !message.includes("409")) {
-          throw error;
-        }
-      }
-
-      try {
-        await apps.createNamespacedDeployment({ namespace, body: manifests.deployment });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        if (!message.includes("AlreadyExists") && !message.includes("409")) {
-          throw error;
-        }
-      }
-
-      try {
-        await core.createNamespacedService({ namespace, body: manifests.service });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        if (!message.includes("AlreadyExists") && !message.includes("409")) {
-          throw error;
-        }
-      }
+      await createIfNotExists(() =>
+        core.createNamespacedPersistentVolumeClaim({ namespace, body: manifests.pvc }),
+      );
+      await createIfNotExists(() => core.createNamespacedSecret({ namespace, body: manifests.secret }));
+      await createIfNotExists(() =>
+        apps.createNamespacedDeployment({ namespace, body: manifests.deployment }),
+      );
+      await createIfNotExists(() => core.createNamespacedService({ namespace, body: manifests.service }));
+      await createIfNotExists(() =>
+        networking.createNamespacedIngress({ namespace, body: manifests.ingress }),
+      );
 
       return getStatus(projectId);
     },
 
     async delete(projectId: string): Promise<void> {
-      const names = [
-        sandboxResourceName(projectId, "service"),
-        sandboxResourceName(projectId, "deployment"),
-        sandboxResourceName(projectId, "secret"),
-        sandboxResourceName(projectId, "pvc"),
-      ];
+      const ingressName = sandboxResourceName(projectId, "ingress");
+      const tlsSecretName = `${ingressName}-tls`;
 
-      for (const name of names) {
-        try {
-          if (name.includes("-deployment")) {
-            await apps.deleteNamespacedDeployment({ name, namespace });
-          } else if (name.includes("-service")) {
-            await core.deleteNamespacedService({ name, namespace });
-          } else if (name.includes("-secret")) {
-            await core.deleteNamespacedSecret({ name, namespace });
-          } else if (name.includes("-pvc")) {
-            await core.deleteNamespacedPersistentVolumeClaim({ name, namespace });
-          }
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          if (!message.includes("404") && !message.includes("not found")) {
-            throw error;
-          }
-        }
-      }
+      await deleteIfExists(() =>
+        networking.deleteNamespacedIngress({ name: ingressName, namespace }),
+      );
+      await deleteIfExists(() => core.deleteNamespacedSecret({ name: tlsSecretName, namespace }));
+      await deleteIfExists(() =>
+        core.deleteNamespacedService({ name: sandboxResourceName(projectId, "service"), namespace }),
+      );
+      await deleteIfExists(() =>
+        apps.deleteNamespacedDeployment({
+          name: sandboxResourceName(projectId, "deployment"),
+          namespace,
+        }),
+      );
+      await deleteIfExists(() =>
+        core.deleteNamespacedSecret({ name: sandboxResourceName(projectId, "secret"), namespace }),
+      );
+      await deleteIfExists(() =>
+        core.deleteNamespacedPersistentVolumeClaim({
+          name: sandboxResourceName(projectId, "pvc"),
+          namespace,
+        }),
+      );
     },
 
     getStatus,

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform
+  namespace: endian-platform
+spec:
+  template:
+    spec:
+      containers:
+        - name: platform
+          imagePullPolicy: Always
+          env:
+            - name: PREVIEW_DOMAIN
+              value: preview.syedhamzazaidi.com
+            - name: SANDBOX_IMAGE
+              value: us-central1-docker.pkg.dev/project-5be3cb47-0a28-4053-b3a/endian/endian-sandbox:latest
+            - name: CLOUD_SQL_CONNECTION_NAME
+              value: project-5be3cb47-0a28-4053-b3a:us-central1:endian-platform-prod
+          volumeMounts:
+            - name: cloudsql
+              mountPath: /cloudsql
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.14.3
+          args:
+            - "--structured-logs"
+            - "--unix-socket=/cloudsql"
+            - "--private-ip"
+            - "project-5be3cb47-0a28-4053-b3a:us-central1:endian-platform-prod"
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: cloudsql
+              mountPath: /cloudsql
+      volumes:
+        - name: cloudsql
+          emptyDir: {}

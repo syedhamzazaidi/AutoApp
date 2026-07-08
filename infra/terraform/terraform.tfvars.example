@@ -1,0 +1,24 @@
+# Copy to terraform.tfvars (gitignored) and fill in values:
+#   cp terraform.tfvars.example terraform.tfvars
+
+project_id   = "project-5be3cb47-0a28-4053-b3a"
+region       = "us-central1"
+zone         = "us-central1-a"
+environment  = "prod"
+# Root domain — apex/www stay on Cloudflare + GitHub Pages; only platform.* and preview.*
+# platform/preview can use Cloudflare A/CNAME to ingress_ip, or enable_google_dns for Google Cloud DNS.
+domain       = "syedhamzazaidi.com"
+
+# GitHub Actions Workload Identity Federation (owner/repo). Leave empty to skip WIF resources.
+# WIF binds to the existing github-deploy SA (create with scripts/setup-github-deploy-sa.sh).
+# github_repository = "your-org/endian"
+
+# Optional overrides
+# cluster_name           = "endian-autopilot"
+# artifact_registry_id   = "endian"
+# cloud_sql_tier         = "db-f1-micro"
+# preview_subdomain      = "preview"
+# ingress_ip             = "0.0.0.0"  # Set to ingress-nginx LB IP after first deploy
+
+# Cloudflare-only DNS: keep false. Set true for Google Cloud DNS delegation from Cloudflare.
+# enable_google_dns = false

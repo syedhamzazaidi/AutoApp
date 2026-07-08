@@ -16,7 +16,7 @@ import {
 } from "@app/ai-gateway";
 import { createSandboxClient } from "@app/sandbox-client";
 import { buildPreviewUrl, createSandboxProvisioner } from "@app/sandbox-provisioner";
-import { auth } from "./auth.js";
+import { auth, runAuthMigrations } from "./auth.js";
 import { isAuthDisabled, requireAuth } from "./middleware/require-auth.js";
 import { requireProjectAccess, type ProjectRequest } from "./middleware/require-project-access.js";
 import {
@@ -40,6 +40,7 @@ const SANDBOX_AUTH_SECRET = process.env.SANDBOX_AUTH_SECRET?.trim() ?? "dev-sand
 
 initDb();
 await runMigrations();
+await runAuthMigrations();
 
 export const sandboxClient = createSandboxClient({ authSecret: SANDBOX_AUTH_SECRET });
 export const sandboxProvisioner = createSandboxProvisioner();

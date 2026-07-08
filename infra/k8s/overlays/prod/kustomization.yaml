@@ -1,0 +1,38 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - cert-manager-clusterissuer.yaml
+  - platform-secrets.yaml
+  - generated/terraform-config.yaml
+
+patches:
+  - target:
+      kind: Deployment
+      name: platform
+      namespace: endian-platform
+    path: platform-deployment-patch.yaml
+  - target:
+      kind: Ingress
+      name: platform
+      namespace: endian-platform
+    path: platform-ingress-patch.yaml
+  - target:
+      kind: ServiceAccount
+      name: platform-provisioner
+      namespace: endian-platform
+    path: platform-serviceaccount-patch.yaml
+  - target:
+      kind: ServiceAccount
+      name: sandbox-runtime
+      namespace: endian-sandboxes
+    path: sandbox-serviceaccount-patch.yaml
+
+images:
+  - name: endian/platform
+    newName: us-central1-docker.pkg.dev/project-5be3cb47-0a28-4053-b3a/endian/endian-platform
+    newTag: latest
+  - name: endian/sandbox
+    newName: us-central1-docker.pkg.dev/project-5be3cb47-0a28-4053-b3a/endian/endian-sandbox
+    newTag: latest

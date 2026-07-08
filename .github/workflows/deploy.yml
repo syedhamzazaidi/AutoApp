@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  deploy-backend:
+  deploy-supabase:
     runs-on: ubuntu-latest
     if: github.repository != '' && secrets.SUPABASE_ACCESS_TOKEN != ''
     steps:
@@ -37,5 +37,84 @@ jobs:
           supabase functions deploy admin-metrics
           supabase functions deploy analyze-plant
           supabase functions deploy send-email
+
+  deploy-gke:
+    runs-on: ubuntu-latest
+    # Requires Workload Identity Federation (no SA JSON keys). See infra/README.md.
+    if: >-
+      github.repository != '' &&
+      secrets.GCP_WORKLOAD_IDENTITY_PROVIDER != '' &&
+      secrets.GCP_SERVICE_ACCOUNT != ''
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      TF_STATE_BUCKET: ${{ secrets.TF_STATE_BUCKET }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      - name: Terraform init
+        run: |
+          terraform -chdir=infra/terraform init \
+            -backend-config="bucket=${TF_STATE_BUCKET}"
+
+      - name: Terraform apply
+        run: terraform -chdir=infra/terraform apply -auto-approve
+
+      - name: Render prod kustomize overlay
+        run: bash scripts/render-kustomize-prod.sh
+
+      - name: Configure kubectl
+        run: |
+          CLUSTER_NAME=$(terraform -chdir=infra/terraform output -raw gke_cluster_name)
+          CLUSTER_LOCATION=$(terraform -chdir=infra/terraform output -raw gke_location)
+          gcloud container clusters get-credentials "$CLUSTER_NAME" \
+            --zone "$CLUSTER_LOCATION" \
+            --project "$GCP_PROJECT_ID"
+
+      - name: Build and push container images
+        run: |
+          REG=$(terraform -chdir=infra/terraform output -raw artifact_registry_url)
+          gcloud auth configure-docker "${REG%%/*}" --quiet
+          docker build -t "$REG/endian-platform:${{ github.sha }}" -f apps/platform/Dockerfile .
+          docker build -t "$REG/endian-sandbox:${{ github.sha }}" -f apps/sandbox/Dockerfile .
+          docker push "$REG/endian-platform:${{ github.sha }}"
+          docker push "$REG/endian-sandbox:${{ github.sha }}"
+          docker tag "$REG/endian-platform:${{ github.sha }}" "$REG/endian-platform:latest"
+          docker tag "$REG/endian-sandbox:${{ github.sha }}" "$REG/endian-sandbox:latest"
+          docker push "$REG/endian-platform:latest"
+          docker push "$REG/endian-sandbox:latest"
+
+      - name: Deploy Kubernetes manifests
+        run: kubectl apply -k infra/k8s/overlays/prod
+
+      - name: Rollout platform deployment
+        run: kubectl rollout status deployment/platform -n endian-platform --timeout=300s
+
+      - name: Run Better Auth migrations
+        run: bash scripts/migrate-platform-auth.sh
 
   # Vercel deploys frontend via GitHub integration automatically

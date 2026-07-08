@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{DEPLOYMENT_NAME}}
+  namespace: {{NAMESPACE}}
+  labels:
+    app.kubernetes.io/name: sandbox
+    app.kubernetes.io/component: workspace
+    endian.io/project-id: "{{PROJECT_ID}}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sandbox
+      endian.io/project-id: "{{PROJECT_ID}}"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sandbox
+        endian.io/project-id: "{{PROJECT_ID}}"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: sandbox
+          image: {{SANDBOX_IMAGE}}
+          ports:
+            - name: preview
+              containerPort: 5173
+            - name: agent
+              containerPort: 3002
+          envFrom:
+            - secretRef:
+                name: {{SECRET_NAME}}
+          env:
+            - name: WORKSPACE_ROOT
+              value: /workspace
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+            - name: tmp
+              mountPath: /tmp
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3002
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      volumes:
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: {{PVC_NAME}}
+        - name: tmp
+          emptyDir: {}

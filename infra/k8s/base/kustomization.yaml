@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespaces.yaml
+  - platform/rbac.yaml
+  - platform/deployment.yaml
+  - platform/service.yaml
+  - platform/ingress.yaml
+  - sandbox/serviceaccount.yaml
+  - sandbox/network-policy.yaml
+  # sandbox/deployment-template.yaml is reference-only for the provisioner
+
+labels:
+  - pairs:
+      app.kubernetes.io/managed-by: kustomize
+      app.kubernetes.io/part-of: endian
+    includeSelectors: false

@@ -18,20 +18,23 @@ RUN pnpm install --frozen-lockfile --filter @app/platform...
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN pnpm --filter @app/platform build
+RUN pnpm --filter @app/platform... build
+
+FROM base AS deploy
+COPY --from=build /app .
+RUN pnpm --filter @app/platform deploy --prod /prod/platform \
+ && find /prod/platform/node_modules -path '*/@app/*/package.json' -exec \
+      sed -i -e 's|\./src/|\./dist/|g' -e 's|\.ts"|\.js"|g' {} +
 
 FROM base AS runtime
 ENV NODE_ENV=production
 ENV PORT=3001
-RUN useradd -m -u 1000 platform
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/apps/platform/dist ./apps/platform/dist
-COPY --from=build /app/apps/platform/package.json ./apps/platform/package.json
-COPY apps/platform/src/public ./apps/platform/src/public
+COPY --from=deploy /prod/platform/ .
+COPY --from=build /app/apps/platform/src/public ./src/public
 
-RUN chown -R platform:platform /app
-USER platform
+RUN chown -R node:node /app
+USER node
 EXPOSE 3001
-CMD ["node", "apps/platform/dist/server.js"]
+CMD ["node", "dist/server.js"]

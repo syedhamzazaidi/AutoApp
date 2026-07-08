@@ -14,7 +14,13 @@
     "policy:check-protected-paths": "node scripts/check-protected-paths.mjs",
     "export:scaffold": "node scripts/export-scaffold.mjs",
     "test:openrouter-model": "pnpm --filter @app/ai-gateway test:model",
-    "try:free-models": "pnpm --filter @app/ai-gateway try:free-models"
+    "try:free-models": "pnpm --filter @app/ai-gateway try:free-models",
+    "dev:cluster": "bash scripts/kind-up.sh",
+    "dev:images": "bash -c 'set -euo pipefail; docker build -t endian/platform:local -f apps/platform/Dockerfile . 2>/dev/null || echo \"apps/platform/Dockerfile not found — build after sandbox agent adds it\"; docker build -t endian/sandbox:local -f apps/sandbox/Dockerfile . 2>/dev/null || echo \"apps/sandbox/Dockerfile not found — build after sandbox agent adds it\"; kind load docker-image endian/platform:local --name \"${KIND_CLUSTER_NAME:-endian}\" 2>/dev/null || true; kind load docker-image endian/sandbox:local --name \"${KIND_CLUSTER_NAME:-endian}\" 2>/dev/null || true'",
+    "infra:plan": "terraform -chdir=infra/terraform plan",
+    "infra:apply": "bash scripts/infra-apply.sh",
+    "infra:deploy": "bash -c 'set -euo pipefail; TF_DIR=infra/terraform; REG=$(terraform -chdir=$TF_DIR output -raw artifact_registry_url 2>/dev/null || echo REGION-docker.pkg.dev/PROJECT/endian); PROJECT=$(terraform -chdir=$TF_DIR output -raw project_id 2>/dev/null || echo PROJECT); docker build -t \"$REG/endian-platform:latest\" -f apps/platform/Dockerfile .; docker build -t \"$REG/endian-sandbox:latest\" -f apps/sandbox/Dockerfile .; gcloud auth configure-docker \"${REG%%/*}\" --quiet; docker push \"$REG/endian-platform:latest\"; docker push \"$REG/endian-sandbox:latest\"; gcloud container clusters get-credentials $(terraform -chdir=$TF_DIR output -raw gke_cluster_name) --zone $(terraform -chdir=$TF_DIR output -raw gke_location) --project $PROJECT; kubectl rollout restart deployment/platform -n endian-platform'",
+    "platform:auth:migrate": "bash scripts/migrate-platform-auth.sh"
   },
   "devDependencies": {
     "turbo": "^2.3.3",

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: endian-platform
+  labels:
+    app.kubernetes.io/part-of: endian
+    endian.io/role: control-plane
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: endian-sandboxes
+  labels:
+    app.kubernetes.io/part-of: endian
+    endian.io/role: sandbox

@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - postgres.yaml
+  - platform-secrets.yaml
+
+patches:
+  - target:
+      kind: Deployment
+      name: platform
+      namespace: endian-platform
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: endian/platform:local
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Never
+      - op: replace
+        path: /spec/template/spec/containers/0/env/3/value
+        value: preview.localtest.me
+  - target:
+      kind: Ingress
+      name: platform
+      namespace: endian-platform
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: platform.localtest.me
+
+# Wildcard preview ingress is provisioned per-project by the sandbox provisioner.
+# This file documents the expected host pattern for local dev.
+
+images:
+  - name: endian/platform
+    newName: endian/platform
+    newTag: local

@@ -245,9 +245,23 @@ See [Generated App Anatomy — Deployment Paths](./generated-app-anatomy.md#depl
 - Kafka, Pub/Sub, or event streaming
 - Snowflake, BigQuery, or warehouse analytics
 - Multi-cloud or dedicated compute (Fly.io, Cloud Run at scale)
-- Lovable-style isolated preview sandboxes at scale
+- Multi-cloud or dedicated compute (Fly.io, Cloud Run at scale)
 
-#### POC deployment paths
+#### GKE per-project sandboxes (this repo)
+
+The **builder control plane** runs on GKE (or **kind** locally with the same code path). Each user project gets an isolated sandbox **Deployment + PVC + Service** in the `endian-sandboxes` namespace:
+
+| Layer | Runs where | Responsibility |
+|-------|------------|----------------|
+| Platform API (`apps/platform`) | Control-plane namespace | Auth, project CRUD, LLM (OpenRouter), Postgres messages |
+| Sandbox pod (`apps/sandbox`) | Per-project pod | Patch apply, `pnpm build`, Vite dev :5173, file context API :3002 |
+| Supabase (shared) | External | RLS via `project_id`; anon key only in sandbox pods |
+
+Preview URLs: `{projectId}.preview.<domain>` via wildcard ingress. The control plane reaches sandboxes on internal ClusterIP :3002 with HMAC-signed requests (`SANDBOX_AUTH_SECRET`). **No `SCAFFOLD_ROOT` on the platform host** — all codegen executes inside tenant pods.
+
+Local dev: `pnpm dev:cluster` (kind) + platform on host with `KUBECONFIG` → kind. Infrastructure is defined under `infra/terraform/` and `infra/k8s/`.
+
+#### POC deployment paths (generated apps)
 
 1. **Vercel Hobby + Supabase free** *(recommended)* — `vite build` → Vercel; connect Supabase project for backend
 2. **GitHub export** — two-way sync; deploy the exported repo to Vercel Hobby; Supabase unchanged
