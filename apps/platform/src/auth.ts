@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import pg from "pg";
 
 const port = Number(process.env.PORT ?? 3001);
 const baseURL = process.env.BETTER_AUTH_URL ?? `http://localhost:${port}`;
@@ -20,9 +21,25 @@ if (!authDisabled && (!googleClientId || !googleClientSecret)) {
   );
 }
 
+function createDatabasePool(): pg.Pool | undefined {
+  const connectionString = process.env.DATABASE_URL?.trim();
+  if (!connectionString) {
+    if (authDisabled || process.env.VITEST === "true") {
+      return undefined;
+    }
+    console.warn("[auth] DATABASE_URL is not set; Better Auth will run without persistence.");
+    return undefined;
+  }
+
+  return new pg.Pool({ connectionString });
+}
+
+const database = createDatabasePool();
+
 export const auth = betterAuth({
   baseURL,
   secret: secret ?? "dev-insecure-secret-change-me",
+  ...(database ? { database } : {}),
   socialProviders:
     googleClientId && googleClientSecret
       ? {

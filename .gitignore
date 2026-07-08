@@ -11,3 +11,22 @@ test-results
 .vercel
 supabase/.branches
 supabase/.temp
+
+# Terraform
+infra/terraform/terraform.tfvars
+infra/terraform/.terraform/
+infra/terraform/.terraform.lock.hcl
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.*
+
+# Local secrets (github-deploy SA keys at .secrets/gcp-admin-sa.json, etc.)
+.secrets/
+
+# GCP service account JSON keys (never commit)
+*-sa.json
+*-sa-key.json
+*service-account*.json
+gcp-credentials.json
+admin-sa.json
+!packages/block-registry/schema.json
+.env*

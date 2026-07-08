@@ -82,7 +82,7 @@
           type="text"
           class="url-bar-input"
           readonly
-          value="http://localhost:5173"
+          value=""
           aria-label="Preview URL"
         />
       </div>
@@ -90,7 +90,7 @@
     <main class="builder-main">
       <div id="project-panel" class="project-panel" hidden>
         <div class="project-panel-header">
-          <h2>Project</h2>
+          <h2>Projects</h2>
           <button
             id="project-close"
             type="button"
@@ -100,18 +100,26 @@
             ×
           </button>
         </div>
-        <div class="file-tree">
-          apps/scaffold/<br />
-          ├── src/pages/<br />
-          ├── src/services/<br />
-          ├── src/features/<br />
-          └── supabase/<br />
-          &nbsp;&nbsp;&nbsp;&nbsp;├── migrations/<br />
-          &nbsp;&nbsp;&nbsp;&nbsp;└── functions/
+        <div id="project-status" class="project-status" role="status" hidden></div>
+        <div class="project-actions">
+          <button id="project-create" type="button" class="btn btn-ghost btn-sm">New project</button>
+        </div>
+        <ul id="project-list" class="project-list" aria-label="Your projects"></ul>
+        <div id="project-details" class="project-details" hidden>
+          <p><strong id="project-name"></strong></p>
+          <p class="project-meta">Sandbox: <span id="project-sandbox-status">—</span></p>
+        </div>
+        <div class="file-tree" id="file-tree">
+          Select or create a project to view workspace files.
         </div>
       </div>
       <div class="preview-canvas">
-        <iframe id="preview-iframe" src="http://localhost:5173" title="App preview"></iframe>
+        <iframe
+          id="preview-iframe"
+          src="about:blank"
+          title="App preview"
+          sandbox="allow-scripts allow-same-origin"
+        ></iframe>
         <footer id="chat-bar" class="builder-chat-bar">
           <div id="messages" class="messages" aria-live="polite"></div>
           <div class="input-area">

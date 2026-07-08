@@ -59,6 +59,16 @@ describe("planAndApply build failure", () => {
     expect(patches[0]?.action).toBe("update");
   });
 
+  it("rejects path traversal in applyPatches", () => {
+    scaffoldRoot = mkdtempSync(join(tmpdir(), "agent-core-traversal-"));
+
+    expect(() =>
+      applyPatches(scaffoldRoot, [
+        { path: "../../outside.txt", action: "create", content: "pwned" },
+      ]),
+    ).toThrow(/Path traversal rejected/);
+  });
+
   it("applies a valid hero Index patch without missing imports", () => {
     scaffoldRoot = mkdtempSync(join(tmpdir(), "agent-core-hero-patch-"));
     mkdirSync(join(scaffoldRoot, "src/pages"), { recursive: true });

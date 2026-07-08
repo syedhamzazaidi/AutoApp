@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsc && node -e \"const fs=require('fs');const p='public';fs.rmSync(p,{recursive:true,force:true});fs.cpSync('src/public',p,{recursive:true})\"",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'no lint configured'",
     "test": "vitest run"
@@ -14,14 +14,19 @@
     "@app/agent-core": "workspace:*",
     "@app/ai-gateway": "workspace:*",
     "@app/block-registry": "workspace:*",
+    "@app/sandbox-client": "workspace:*",
+    "@app/sandbox-provisioner": "workspace:*",
     "@app/shared": "workspace:*",
+    "@kubernetes/client-node": "^1.0.0",
     "better-auth": "^1.6.23",
     "dotenv": "^17.4.2",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

@@ -3,6 +3,7 @@ import { z } from "zod";
 export const clientEnvSchema = z.object({
   VITE_SUPABASE_URL: z.union([z.string().url(), z.literal("")]).optional(),
   VITE_SUPABASE_ANON_KEY: z.string().optional(),
+  VITE_PROJECT_ID: z.string().uuid().optional(),
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;

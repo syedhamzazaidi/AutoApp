@@ -1,9 +1,9 @@
 import { existsSync, mkdirSync, writeFileSync, unlinkSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import type { AgentTurnResult, FilePatch } from "@app/shared";
 import { activateBlock, readManifest } from "@app/block-registry";
 import { classifyPrompt } from "./classifier.js";
-import { buildContext } from "./context.js";
+import { buildContext, type ProjectContext } from "./context.js";
 import { generateFeaturePatches } from "./prompts/feature-generation.js";
 import { runBuildGate } from "./build-gate.js";
 import { isProtectedPath } from "./protected-paths.js";
@@ -15,6 +15,8 @@ export interface PlannerInput {
   prompt: string;
   scaffoldRoot: string;
   protectedPaths: string[];
+  context?: ProjectContext;
+  existingPaths?: string[];
   llmGenerate?: (
     prompt: string,
     context: string,
@@ -24,21 +26,52 @@ export interface PlannerInput {
   onStatus?: (phase: AgentTurnPhase) => void;
 }
 
-export async function planAndApply(input: PlannerInput): Promise<AgentTurnResult> {
+export interface PlanPatchesResult {
+  workType: AgentTurnResult["workType"];
+  patches: FilePatch[];
+  blockId?: string;
+  manifestUpdates?: AgentTurnResult["manifestUpdates"];
+}
+
+export interface ApplyAndBuildInput {
+  patches: FilePatch[];
+  blockId?: string;
+  protectedPaths?: string[];
+  onStatus?: (phase: AgentTurnPhase) => void;
+}
+
+export function resolveSafePath(scaffoldRoot: string, relativePath: string): string {
+  const normalized = relativePath.replace(/\\/g, "/");
+  if (normalized.startsWith("/") || normalized.includes("\0")) {
+    throw new Error(`Invalid path: ${relativePath}`);
+  }
+
+  const resolvedRoot = resolve(scaffoldRoot);
+  const fullPath = resolve(resolvedRoot, normalized);
+
+  if (fullPath !== resolvedRoot && !fullPath.startsWith(`${resolvedRoot}/`)) {
+    throw new Error(`Path traversal rejected: ${relativePath}`);
+  }
+
+  return fullPath;
+}
+
+export async function planPatches(input: PlannerInput): Promise<PlanPatchesResult> {
   const classification = classifyPrompt(input.prompt);
-  const manifest = readManifest(input.scaffoldRoot);
-  const context = buildContext(input.scaffoldRoot, manifest, [], input.protectedPaths);
 
   if (classification.workType === "block_activation" && classification.blockId) {
-    const manifest = activateBlock(classification.blockId, { scaffoldRoot: input.scaffoldRoot });
     return {
       workType: "block_activation",
       patches: [],
-      manifestUpdates: manifest,
+      blockId: classification.blockId,
     };
   }
 
   input.onStatus?.("planning");
+
+  const manifest = input.context?.manifest ?? readManifest(input.scaffoldRoot);
+  const context =
+    input.context ?? buildContext(input.scaffoldRoot, manifest, [], input.protectedPaths);
 
   const patches = input.llmGenerate
     ? await input.llmGenerate(input.prompt, JSON.stringify(context), {
@@ -46,7 +79,7 @@ export async function planAndApply(input: PlannerInput): Promise<AgentTurnResult
       })
     : generateFeaturePatches(input.prompt);
 
-  const normalizedPatches = normalizePatchActions(input.scaffoldRoot, patches);
+  const normalizedPatches = normalizePatchActions(input.scaffoldRoot, patches, input.existingPaths);
   agentDebug("parsed patches", normalizedPatches.map((patch) => ({
     path: patch.path,
     action: patch.action,
@@ -58,36 +91,91 @@ export async function planAndApply(input: PlannerInput): Promise<AgentTurnResult
     throw new Error(`Protected path edit rejected: ${rejected.map((p) => p.path).join(", ")}`);
   }
 
+  return {
+    workType: classification.workType,
+    patches: normalizedPatches,
+  };
+}
+
+export async function applyAndBuild(
+  scaffoldRoot: string,
+  input: ApplyAndBuildInput,
+): Promise<AgentTurnResult> {
+  const protectedPaths = input.protectedPaths ?? [];
+
+  if (input.blockId) {
+    const manifest = activateBlock(input.blockId, { scaffoldRoot, runMigrations: false });
+    return {
+      workType: "block_activation",
+      patches: [],
+      manifestUpdates: manifest,
+    };
+  }
+
+  const rejected = input.patches.filter((p) => isProtectedPath(p.path, protectedPaths));
+  if (rejected.length) {
+    throw new Error(`Protected path edit rejected: ${rejected.map((p) => p.path).join(", ")}`);
+  }
+
   input.onStatus?.("applying");
-  applyPatches(input.scaffoldRoot, normalizedPatches);
+  applyPatches(scaffoldRoot, input.patches);
   input.onStatus?.("building");
-  const buildResult = await runBuildGate(input.scaffoldRoot);
+  const buildResult = await runBuildGate(scaffoldRoot);
 
   if (!buildResult.ok) {
     agentDebug("build gate failed", buildResult.stderr);
     return {
-      workType: classification.workType,
-      patches: normalizedPatches,
+      workType: "feature_generation",
+      patches: input.patches,
       buildFailed: true,
       buildError: buildResult.stderr,
     };
   }
 
   return {
-    workType: classification.workType,
-    patches: normalizedPatches,
+    workType: "feature_generation",
+    patches: input.patches,
     buildOutput: buildResult.output,
   };
 }
 
-export function normalizePatchActions(scaffoldRoot: string, patches: FilePatch[]): FilePatch[] {
+/** @deprecated Use planPatches + applyAndBuild in production; kept for unit tests. */
+export async function planAndApply(input: PlannerInput): Promise<AgentTurnResult> {
+  const plan = await planPatches(input);
+
+  if (plan.blockId) {
+    return applyAndBuild(input.scaffoldRoot, {
+      blockId: plan.blockId,
+      patches: [],
+      protectedPaths: input.protectedPaths,
+      onStatus: input.onStatus,
+    });
+  }
+
+  return applyAndBuild(input.scaffoldRoot, {
+    patches: plan.patches,
+    protectedPaths: input.protectedPaths,
+    onStatus: input.onStatus,
+  });
+}
+
+export function normalizePatchActions(
+  scaffoldRoot: string,
+  patches: FilePatch[],
+  existingPaths?: string[],
+): FilePatch[] {
+  const existing = existingPaths ? new Set(existingPaths) : null;
+
   return patches.map((patch) => {
     if (patch.action !== "create") {
       return patch;
     }
 
-    const fullPath = join(scaffoldRoot, patch.path);
-    if (!existsSync(fullPath)) {
+    const fileExists = existing
+      ? existing.has(patch.path.replace(/\\/g, "/"))
+      : existsSync(join(scaffoldRoot, patch.path));
+
+    if (!fileExists) {
       return patch;
     }
 
@@ -98,7 +186,7 @@ export function normalizePatchActions(scaffoldRoot: string, patches: FilePatch[]
 
 export function applyPatches(scaffoldRoot: string, patches: FilePatch[]): void {
   for (const patch of patches) {
-    const fullPath = join(scaffoldRoot, patch.path);
+    const fullPath = resolveSafePath(scaffoldRoot, patch.path);
     if (patch.action === "delete") {
       try {
         unlinkSync(fullPath);

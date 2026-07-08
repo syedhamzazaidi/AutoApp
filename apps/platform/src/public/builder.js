@@ -19,6 +19,16 @@ const profileNameEl = document.getElementById("profile-name");
 const profileEmailEl = document.getElementById("profile-email");
 const signOutEl = document.getElementById("sign-out");
 const projectPanelEl = document.getElementById("project-panel");
+const projectStatusEl = document.getElementById("project-status");
+const projectCreateEl = document.getElementById("project-create");
+const projectListEl = document.getElementById("project-list");
+const projectDetailsEl = document.getElementById("project-details");
+const projectNameEl = document.getElementById("project-name");
+const projectSandboxStatusEl = document.getElementById("project-sandbox-status");
+const fileTreeEl = document.getElementById("file-tree");
+
+let currentProject = null;
+let statusPollTimer = null;
 const projectToggleEl = document.getElementById("project-toggle");
 const projectCloseEl = document.getElementById("project-close");
 const previewCanvasEl = document.querySelector(".preview-canvas");
@@ -236,7 +246,7 @@ function getDisplayedPreviewUrl() {
   const stackUrl = previewNav.urls[previewNav.index];
   if (stackUrl) return stackUrl;
 
-  return previewIframeEl?.getAttribute("src") || previewIframeEl?.src || "http://localhost:5173";
+  return previewIframeEl?.getAttribute("src") || previewIframeEl?.src || currentProject?.previewUrl || "";
 }
 
 function updatePreviewUrlDisplay() {
@@ -492,8 +502,184 @@ async function loadUser() {
   renderProfileDetails(user);
 }
 
+function setProjectStatus(message, { visible = true } = {}) {
+  if (!projectStatusEl) return;
+  projectStatusEl.hidden = !visible;
+  projectStatusEl.textContent = message ?? "";
+}
+
+function renderProjectList(projects) {
+  if (!projectListEl) return;
+
+  if (!projects.length) {
+    projectListEl.innerHTML = `<li class="project-list-empty">No projects yet.</li>`;
+    return;
+  }
+
+  projectListEl.innerHTML = projects
+    .map(
+      (project) =>
+        `<li><button type="button" class="project-list-item${currentProject?.id === project.id ? " is-active" : ""}" data-project-id="${escapeHtml(project.id)}">${escapeHtml(project.name)}</button></li>`,
+    )
+    .join("");
+
+  projectListEl.querySelectorAll("[data-project-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      selectProject(button.getAttribute("data-project-id"));
+    });
+  });
+}
+
+function renderProjectDetails(project) {
+  if (!projectDetailsEl || !projectNameEl || !projectSandboxStatusEl) return;
+
+  projectDetailsEl.hidden = !project;
+  if (!project) return;
+
+  projectNameEl.textContent = project.name;
+  projectSandboxStatusEl.textContent = project.sandboxStatus ?? "unknown";
+}
+
+function setPreviewUrl(url) {
+  if (!previewIframeEl || !url) return;
+
+  previewNav.urls = [url];
+  previewNav.index = 0;
+  previewNav.initialLoad = true;
+  previewIframeEl.src = url;
+  updatePreviewNavButtons();
+  updatePreviewUrlDisplay();
+}
+
+async function loadProjects() {
+  const res = await fetch("/api/projects", { credentials: "include" });
+  if (res.status === 401) {
+    window.location.href = `/login?redirect=${encodeURIComponent("/builder")}`;
+    return [];
+  }
+
+  const { projects } = await res.json();
+  renderProjectList(projects);
+  return projects;
+}
+
+async function refreshCurrentProject() {
+  if (!currentProject?.id) return null;
+
+  const res = await fetch(`/api/projects/${currentProject.id}`, { credentials: "include" });
+  if (!res.ok) return currentProject;
+
+  const { project } = await res.json();
+  currentProject = project;
+  renderProjectDetails(project);
+
+  if (project.previewUrl && project.previewUrl !== previewIframeEl?.src) {
+    if (project.sandboxStatus === "ready") {
+      setProjectStatus("");
+      setPreviewUrl(project.previewUrl);
+    }
+  }
+
+  if (project.sandboxStatus === "starting" || project.sandboxStatus === "pending") {
+    setProjectStatus("Starting workspace…");
+    scheduleProjectStatusPoll();
+  } else if (project.sandboxStatus === "failed") {
+    setProjectStatus("Workspace failed to start. Try creating a new project.", { visible: true });
+    clearProjectStatusPoll();
+  } else {
+    setProjectStatus("");
+    clearProjectStatusPoll();
+  }
+
+  return project;
+}
+
+function scheduleProjectStatusPoll() {
+  clearProjectStatusPoll();
+  statusPollTimer = window.setInterval(() => {
+    refreshCurrentProject();
+  }, 4000);
+}
+
+function clearProjectStatusPoll() {
+  if (statusPollTimer) {
+    window.clearInterval(statusPollTimer);
+    statusPollTimer = null;
+  }
+}
+
+async function selectProject(projectId) {
+  if (!projectId) return;
+
+  currentProject = { id: projectId };
+  setProjectPanelOpen(true);
+  await refreshCurrentProject();
+  await loadProjects();
+  await loadMessages();
+
+  if (currentProject?.sandboxStatus === "ready" && currentProject.previewUrl) {
+    setPreviewUrl(currentProject.previewUrl);
+  }
+}
+
+async function createProject() {
+  const name = window.prompt("Project name", "My app");
+  if (name === null) return;
+
+  setProjectStatus("Creating project…");
+  const res = await fetch("/api/projects", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ name: name.trim() || "Untitled project" }),
+  });
+
+  if (res.status === 401) {
+    window.location.href = `/login?redirect=${encodeURIComponent("/builder")}`;
+    return;
+  }
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    setProjectStatus(body.error || "Failed to create project");
+    return;
+  }
+
+  const { project } = await res.json();
+  currentProject = project;
+  renderProjectDetails(project);
+  await loadProjects();
+  await loadMessages();
+  setProjectStatus("Starting workspace…");
+  scheduleProjectStatusPoll();
+}
+
+projectCreateEl?.addEventListener("click", createProject);
+
+async function ensureProjectSelected() {
+  const projects = await loadProjects();
+  if (currentProject?.id) {
+    await refreshCurrentProject();
+    return;
+  }
+
+  if (projects.length > 0) {
+    await selectProject(projects[0].id);
+    return;
+  }
+
+  setProjectPanelOpen(true);
+  setProjectStatus("Create a project to start building.");
+}
+
 async function loadMessages() {
-  const res = await fetch("/api/messages", { credentials: "include" });
+  if (!currentProject?.id) {
+    if (messagesEl) messagesEl.innerHTML = "";
+    updateChatToggleVisibility();
+    return;
+  }
+
+  const res = await fetch(`/api/projects/${currentProject.id}/messages`, { credentials: "include" });
   if (res.status === 401) {
     window.location.href = `/login?redirect=${encodeURIComponent("/builder")}`;
     return;
@@ -607,13 +793,19 @@ async function sendPrompt() {
   const prompt = promptEl.value.trim();
   if (!prompt) return;
 
+  if (!currentProject?.id) {
+    appendAssistantMessage("Create or select a project first.", { isError: true });
+    setProjectPanelOpen(true);
+    return;
+  }
+
   expandChatBarOnSend();
   appendOptimisticUserMessage(prompt);
   promptEl.value = "";
   setAgentTurnInFlight(true);
 
   try {
-    const res = await fetch("/api/agent-turn/stream", {
+    const res = await fetch(`/api/projects/${currentProject.id}/agent-turn/stream`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -682,4 +874,4 @@ promptEl.addEventListener("keydown", (e) => {
 });
 
 loadUser();
-loadMessages();
+ensureProjectSelected();
