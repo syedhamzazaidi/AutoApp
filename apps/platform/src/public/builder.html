@@ -144,6 +144,25 @@
         </footer>
       </div>
     </main>
+    <div id="project-name-dialog" class="dialog-overlay" hidden>
+      <div
+        class="dialog-card"
+        role="dialog"
+        aria-labelledby="project-name-dialog-title"
+        aria-modal="true"
+      >
+        <h2 id="project-name-dialog-title">New project</h2>
+        <p class="dialog-subtitle">Give your project a name to get started.</p>
+        <label class="dialog-field" for="project-name-input">
+          <span class="dialog-label">Project name</span>
+          <input id="project-name-input" type="text" class="dialog-input" value="My app" />
+        </label>
+        <div class="dialog-actions">
+          <button id="project-name-cancel" type="button" class="btn btn-ghost btn-sm">Cancel</button>
+          <button id="project-name-submit" type="button" class="btn btn-primary btn-sm">Create</button>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/builder.js"></script>
   </body>
 </html>

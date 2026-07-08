@@ -31,6 +31,10 @@ let currentProject = null;
 let statusPollTimer = null;
 const projectToggleEl = document.getElementById("project-toggle");
 const projectCloseEl = document.getElementById("project-close");
+const projectNameDialogEl = document.getElementById("project-name-dialog");
+const projectNameInputEl = document.getElementById("project-name-input");
+const projectNameSubmitEl = document.getElementById("project-name-submit");
+const projectNameCancelEl = document.getElementById("project-name-cancel");
 const previewCanvasEl = document.querySelector(".preview-canvas");
 const previewIframeEl = document.getElementById("preview-iframe");
 const previewBackBtn = document.getElementById("preview-back");
@@ -508,6 +512,59 @@ function setProjectStatus(message, { visible = true } = {}) {
   projectStatusEl.textContent = message ?? "";
 }
 
+let projectNameDialogResolver = null;
+
+function closeProjectNameDialog(result = null) {
+  if (!projectNameDialogEl) return;
+
+  projectNameDialogEl.hidden = true;
+  const resolve = projectNameDialogResolver;
+  projectNameDialogResolver = null;
+  resolve?.(result);
+}
+
+function openProjectNameDialog(defaultName = "My app") {
+  if (!projectNameDialogEl || !projectNameInputEl) {
+    return Promise.resolve(window.prompt("Project name", defaultName));
+  }
+
+  closeProjectNameDialog(null);
+
+  return new Promise((resolve) => {
+    projectNameDialogResolver = resolve;
+    projectNameInputEl.value = defaultName;
+    projectNameDialogEl.hidden = false;
+
+    window.requestAnimationFrame(() => {
+      projectNameInputEl.focus();
+      projectNameInputEl.select();
+    });
+  });
+}
+
+function submitProjectNameDialog() {
+  if (!projectNameInputEl) return;
+
+  const name = projectNameInputEl.value.trim();
+  closeProjectNameDialog(name || "Untitled project");
+}
+
+projectNameSubmitEl?.addEventListener("click", submitProjectNameDialog);
+projectNameCancelEl?.addEventListener("click", () => closeProjectNameDialog(null));
+
+projectNameInputEl?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    submitProjectNameDialog();
+  }
+});
+
+projectNameDialogEl?.addEventListener("click", (event) => {
+  if (event.target === projectNameDialogEl) {
+    closeProjectNameDialog(null);
+  }
+});
+
 function renderProjectList(projects) {
   if (!projectListEl) return;
 
@@ -519,7 +576,7 @@ function renderProjectList(projects) {
   projectListEl.innerHTML = projects
     .map(
       (project) =>
-        `<li><button type="button" class="project-list-item${currentProject?.id === project.id ? " is-active" : ""}" data-project-id="${escapeHtml(project.id)}">${escapeHtml(project.name)}</button></li>`,
+        `<li><button type="button" class="btn btn-ghost btn-sm project-list-item${currentProject?.id === project.id ? " is-active" : ""}" data-project-id="${escapeHtml(project.id)}">${escapeHtml(project.name)}</button></li>`,
     )
     .join("");
 
@@ -623,7 +680,7 @@ async function selectProject(projectId) {
 }
 
 async function createProject() {
-  const name = window.prompt("Project name", "My app");
+  const name = await openProjectNameDialog("My app");
   if (name === null) return;
 
   setProjectStatus("Creating project…");
@@ -631,7 +688,7 @@ async function createProject() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ name: name.trim() || "Untitled project" }),
+    body: JSON.stringify({ name }),
   });
 
   if (res.status === 401) {
@@ -859,6 +916,11 @@ document.addEventListener("click", (event) => {
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
+    if (projectNameDialogEl && !projectNameDialogEl.hidden) {
+      closeProjectNameDialog(null);
+      return;
+    }
+
     setProfileDropdownOpen(false);
     if (isChatExpanded()) {
       setChatExpanded(false);
