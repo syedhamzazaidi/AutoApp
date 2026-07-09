@@ -12,6 +12,8 @@ spec:
           env:
             - name: PREVIEW_DOMAIN
               value: preview.syedhamzazaidi.com
+            - name: PREVIEW_URL_SCHEME
+              value: https
             - name: SANDBOX_IMAGE
               value: us-central1-docker.pkg.dev/project-5be3cb47-0a28-4053-b3a/endian/endian-sandbox:latest
             - name: CLOUD_SQL_CONNECTION_NAME

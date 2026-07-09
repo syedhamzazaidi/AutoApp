@@ -35,7 +35,8 @@ export function buildPreviewHost(projectId: string, previewDomain: string): stri
 }
 
 export function buildPreviewUrl(projectId: string, previewDomain: string): string {
-  return `http://${buildPreviewHost(projectId, previewDomain)}`;
+  const scheme = process.env.PREVIEW_URL_SCHEME?.trim() || "http";
+  return `${scheme}://${buildPreviewHost(projectId, previewDomain)}`;
 }
 
 export function sandboxResourceName(

@@ -597,9 +597,18 @@ function renderProjectDetails(project) {
   projectSandboxStatusEl.textContent = project.sandboxStatus ?? "unknown";
 }
 
+function normalizePreviewUrl(url) {
+  if (!url) return url;
+  if (window.location.protocol === "https:" && url.startsWith("http://")) {
+    return url.replace(/^http:/, "https:");
+  }
+  return url;
+}
+
 function setPreviewUrl(url) {
   if (!previewIframeEl || !url) return;
 
+  url = normalizePreviewUrl(url);
   previewNav.urls = [url];
   previewNav.index = 0;
   previewNav.initialLoad = true;
