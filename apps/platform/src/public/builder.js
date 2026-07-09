@@ -38,10 +38,14 @@ const projectNameSubmitEl = document.getElementById("project-name-submit");
 const projectNameCancelEl = document.getElementById("project-name-cancel");
 const previewCanvasEl = document.querySelector(".preview-canvas");
 const previewIframeEl = document.getElementById("preview-iframe");
+const previewLoadingEl = document.getElementById("preview-loading");
+const previewLoadingLabelEl = previewLoadingEl?.querySelector(".preview-loading-label");
+const previewLoadingHintEl = previewLoadingEl?.querySelector(".preview-loading-hint");
 const previewBackBtn = document.getElementById("preview-back");
 const previewForwardBtn = document.getElementById("preview-forward");
 const previewRefreshBtn = document.getElementById("preview-refresh");
 const previewUrlEl = document.getElementById("preview-url");
+let previewWaitingForLoad = false;
 
 function isChatExpanded() {
   return chatBarEl?.classList.contains("expanded") ?? false;
@@ -319,6 +323,10 @@ function onPreviewLoad() {
 
   if (previewNav.initialLoad) {
     previewNav.initialLoad = false;
+    if (previewWaitingForLoad) {
+      previewWaitingForLoad = false;
+      setPreviewLoading(false);
+    }
     updatePreviewNavButtons();
     return;
   }
@@ -606,6 +614,16 @@ function normalizePreviewUrl(url) {
   return url;
 }
 
+function setPreviewLoading(visible, { label, hint } = {}) {
+  if (!previewLoadingEl) return;
+
+  if (label && previewLoadingLabelEl) previewLoadingLabelEl.textContent = label;
+  if (hint && previewLoadingHintEl) previewLoadingHintEl.textContent = hint;
+
+  previewLoadingEl.hidden = !visible;
+  previewLoadingEl.setAttribute("aria-busy", String(visible));
+}
+
 function setPreviewUrl(url) {
   if (!previewIframeEl || !url) return;
 
@@ -613,6 +631,11 @@ function setPreviewUrl(url) {
   previewNav.urls = [url];
   previewNav.index = 0;
   previewNav.initialLoad = true;
+  previewWaitingForLoad = true;
+  setPreviewLoading(true, {
+    label: "Loading preview…",
+    hint: "Almost ready",
+  });
   previewIframeEl.src = url;
   updatePreviewNavButtons();
   updatePreviewUrlDisplay();
@@ -649,9 +672,15 @@ async function refreshCurrentProject() {
 
   if (project.sandboxStatus === "starting" || project.sandboxStatus === "pending") {
     setProjectStatus("Starting workspace…");
+    setPreviewLoading(true, {
+      label: "Starting preview…",
+      hint: "Spinning up your workspace",
+    });
     scheduleProjectStatusPoll();
   } else if (project.sandboxStatus === "failed") {
     setProjectStatus("Workspace failed to start. Try creating a new project.", { visible: true });
+    previewWaitingForLoad = false;
+    setPreviewLoading(false);
     clearProjectStatusPoll();
   } else {
     setProjectStatus("");
@@ -718,6 +747,10 @@ async function createProject() {
   await loadProjects();
   await loadMessages();
   setProjectStatus("Starting workspace…");
+  setPreviewLoading(true, {
+    label: "Starting preview…",
+    hint: "Spinning up your workspace",
+  });
   scheduleProjectStatusPoll();
 }
 
