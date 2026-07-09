@@ -42,9 +42,15 @@ if [[ "${DEPLOY_K8S}" == "true" ]]; then
   PROJECT_ID="$(terraform -chdir="${TF_DIR}" output -raw project_id)"
 
   echo "==> gcloud container clusters get-credentials ${CLUSTER_NAME}"
-  gcloud container clusters get-credentials "${CLUSTER_NAME}" \
-    --zone "${CLUSTER_LOCATION}" \
-    --project "${PROJECT_ID}"
+  if [[ "${CLUSTER_LOCATION}" =~ -[a-z]$ ]]; then
+    gcloud container clusters get-credentials "${CLUSTER_NAME}" \
+      --zone "${CLUSTER_LOCATION}" \
+      --project "${PROJECT_ID}"
+  else
+    gcloud container clusters get-credentials "${CLUSTER_NAME}" \
+      --region "${CLUSTER_LOCATION}" \
+      --project "${PROJECT_ID}"
+  fi
 
   echo "==> kubectl apply -k overlays/prod"
   kubectl apply -k "${OVERLAY_DIR}"

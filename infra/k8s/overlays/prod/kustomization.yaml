@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - ../../base
   - cert-manager-clusterissuer.yaml
-  - platform-secrets.yaml
+  # platform-secrets.yaml omitted — live secret is patched via scripts/sync-platform-db-secret.sh
   - generated/terraform-config.yaml
 
 patches:
