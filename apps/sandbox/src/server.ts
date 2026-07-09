@@ -6,6 +6,10 @@ import {
   applyAndBuild,
   buildContext,
   DEFAULT_PROTECTED_PATHS,
+  isEditablePath,
+  isProtectedPath,
+  resolveSafePath,
+  snapshotFile,
 } from "@app/agent-core";
 import type { FilePatch } from "@app/shared";
 import { SANDBOX_AUTH_HEADERS, verifySandboxRequest } from "@app/sandbox-client";
@@ -81,6 +85,36 @@ app.get("/api/files", requireAuth, (c) => {
     manifest: context.manifest,
     protectedPaths: context.protectedPaths,
   });
+});
+
+app.get("/api/file", requireAuth, (c) => {
+  const rawPath = c.req.query("path");
+  if (!rawPath?.trim()) {
+    return c.json({ error: "Missing path query parameter" }, 400);
+  }
+
+  const filePath = rawPath.replace(/\\/g, "/").trim();
+
+  try {
+    resolveSafePath(WORKSPACE_ROOT, filePath);
+  } catch {
+    return c.json({ error: "Invalid or unsafe path" }, 403);
+  }
+
+  if (isProtectedPath(filePath, DEFAULT_PROTECTED_PATHS)) {
+    return c.json({ error: "Protected path" }, 403);
+  }
+
+  if (!isEditablePath(filePath)) {
+    return c.json({ error: "Path not in editable prefixes" }, 403);
+  }
+
+  const content = snapshotFile(WORKSPACE_ROOT, filePath);
+  if (content === null) {
+    return c.json({ error: "File not found" }, 404);
+  }
+
+  return c.json({ path: filePath, content });
 });
 
 app.get("/api/manifest", requireAuth, (c) => {

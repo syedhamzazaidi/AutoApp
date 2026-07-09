@@ -17,6 +17,11 @@ export interface SandboxManifestResponse {
   manifest: BlocksManifest;
 }
 
+export interface SandboxFileContent {
+  path: string;
+  content: string;
+}
+
 export interface ApplyPatchesRequest {
   patches: FilePatch[];
   blockId?: string;
@@ -36,6 +41,7 @@ export interface SandboxClientOptions {
 
 export interface SandboxClient {
   getContext(projectId: string): Promise<SandboxContext>;
+  readFile(projectId: string, path: string): Promise<SandboxFileContent>;
   applyPatches(projectId: string, request: ApplyPatchesRequest): Promise<ApplyPatchesResponse>;
   getHealth(projectId: string): Promise<SandboxHealth>;
   getManifest(projectId: string): Promise<SandboxManifestResponse>;

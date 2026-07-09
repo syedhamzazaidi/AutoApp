@@ -13,13 +13,13 @@
     "typecheck": "tsc --noEmit",
     "lint": "echo 'no lint configured'",
     "test": "vitest run",
-    "test:model": "tsx scripts/test-free-model.ts",
-    "try:free-models": "tsx scripts/try-free-models.ts"
+    "test:vertex-model": "tsx scripts/test-vertex-model.ts"
   },
   "dependencies": {
     "@app/agent-core": "workspace:*",
+    "@app/sandbox-client": "workspace:*",
     "@app/shared": "workspace:*",
-    "@openrouter/agent": "^0.7.2",
+    "@google/genai": "^1.52.0",
     "@supabase/supabase-js": "^2.49.1"
   },
   "devDependencies": {

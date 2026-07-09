@@ -84,11 +84,20 @@ spec:
                 secretKeyRef:
                   name: platform-secrets
                   key: GOOGLE_CLIENT_SECRET
+            # Vertex AI (builder agent). OPENROUTER_* is unused by the builder;
+            # Plant Pal edge functions may still use OpenRouter separately.
+            - name: GCP_PROJECT_ID
+              value: project-5be3cb47-0a28-4053-b3a
+            - name: VERTEX_LOCATION
+              value: global
+            - name: VERTEX_MODEL
+              value: gemini-2.5-flash-lite
             - name: OPENROUTER_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: platform-secrets
                   key: OPENROUTER_API_KEY
+                  optional: true
             - name: SUPABASE_URL
               valueFrom:
                 secretKeyRef:

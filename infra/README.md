@@ -113,13 +113,32 @@ Granted by `./scripts/setup-github-deploy-sa.sh` on the target project:
 | `roles/iam.serviceAccountUser` | Bind SAs to GKE workloads |
 | `roles/dns.admin` | Wildcard preview DNS |
 | `roles/storage.admin` | Terraform remote state bucket |
-| `roles/secretmanager.admin` | Runtime secrets (OpenRouter, Supabase, DB password) |
+| `roles/secretmanager.admin` | Runtime secrets (Supabase, DB password, optional OpenRouter) |
+| `roles/aiplatform.user` | Local Vertex Gemini smoke (builder agent) |
 
 `orgpolicy.policyAdmin` is **not** granted on github-deploy — only your user account needs that to change org policies.
 
 ### Runtime vs bootstrap
 
-**github-deploy** is for Terraform, local/manual deploy, and CI only. The platform pod uses a separate least-privilege SA (`platform-runtime-<env>@`) via GKE Workload Identity with `roles/container.developer` to provision sandbox resources in `endian-sandboxes` only. Sandbox pods use `sandbox-runtime-<env>@` with minimal privileges (Artifact Registry reader).
+**github-deploy** is for Terraform, local/manual deploy, and CI only. The platform pod uses a separate least-privilege SA (`platform-runtime-<env>@`) via GKE Workload Identity with `roles/container.developer` to provision sandbox resources in `endian-sandboxes` only, plus `roles/aiplatform.user` for Vertex Gemini (builder agent). Sandbox pods use `sandbox-runtime-<env>@` with minimal privileges (Artifact Registry reader).
+
+### Vertex AI (builder agent)
+
+Enable API + IAM are managed in Terraform (`aiplatform.googleapis.com`, `roles/aiplatform.user` on `platform-runtime-*`). `github-deploy` also gets `roles/aiplatform.user` for local smoke via ADC / `.secrets/gcp-admin-sa.json`.
+
+```bash
+# One-shot (if Terraform not applied yet):
+gcloud services enable aiplatform.googleapis.com --project=project-5be3cb47-0a28-4053-b3a
+gcloud projects add-iam-policy-binding project-5be3cb47-0a28-4053-b3a \
+  --member="serviceAccount:platform-runtime-prod@project-5be3cb47-0a28-4053-b3a.iam.gserviceaccount.com" \
+  --role="roles/aiplatform.user"
+# Local smoke with github-deploy key:
+gcloud projects add-iam-policy-binding project-5be3cb47-0a28-4053-b3a \
+  --member="serviceAccount:github-deploy@project-5be3cb47-0a28-4053-b3a.iam.gserviceaccount.com" \
+  --role="roles/aiplatform.user"
+```
+
+Platform env: `GCP_PROJECT_ID`, `VERTEX_LOCATION=global`, `VERTEX_MODEL=gemini-2.5-flash-lite`. Builder does not require `OPENROUTER_*`.
 
 ## GitHub Actions auth (no SA keys)
 

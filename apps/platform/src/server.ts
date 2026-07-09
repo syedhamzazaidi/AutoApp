@@ -9,10 +9,12 @@ import {
   DEFAULT_PROTECTED_PATHS,
 } from "@app/agent-core";
 import type { AgentTurnPhase } from "@app/agent-core";
+import type { AgentMessage } from "@app/shared";
 import {
-  generatePatchesWithOpenRouter,
   getCustomerUsageSummary,
-  isOpenRouterConfigured,
+  isGeminiConfigured,
+  runBuilderAgent,
+  type BuilderAgentEvent,
 } from "@app/ai-gateway";
 import { createSandboxClient } from "@app/sandbox-client";
 import { buildPreviewUrl, createSandboxProvisioner } from "@app/sandbox-provisioner";
@@ -140,14 +142,22 @@ function buildAgentTurnReply(
   const applied = formatAppliedPaths(appliedPaths);
 
   if (buildFailed) {
-    const provider = isOpenRouterConfigured() ? "OpenRouter" : "template";
+    const provider = isGeminiConfigured() ? "Gemini" : "template";
     const header = `Applied ${patchCount} file(s) via ${provider}, but the build failed.${applied}`;
     return buildError ? `${header}\n\nBuild errors:\n${buildError}` : header;
   }
 
-  const provider = isOpenRouterConfigured() ? "OpenRouter" : "template";
+  const provider = isGeminiConfigured() ? "Gemini" : "template";
   const summary = `Generated ${patchCount} file(s) via ${provider}. Build ${buildOutput ? "passed" : "skipped"}.`;
   return summary + applied;
+}
+
+async function loadRecentMessages(projectId: string): Promise<AgentMessage[]> {
+  const rows = await listMessages(projectId);
+  return rows.slice(-10).map((row) => ({
+    role: row.role,
+    content: row.content,
+  }));
 }
 
 async function runAgentTurn(
@@ -156,42 +166,93 @@ async function runAgentTurn(
   req: express.Request,
   handlers?: {
     onToken?: (delta: string) => void;
-    onStatus?: (phase: AgentTurnPhase) => void;
+    onStatus?: (phase: AgentTurnPhase | string) => void;
+    onEvent?: (event: BuilderAgentEvent) => void;
   },
 ) {
   const classification = classifyPrompt(prompt);
   const customerId = await resolveBuilderCustomerId(req);
+  const recentMessages = await loadRecentMessages(projectId);
 
+  // Deterministic block activation — no LLM.
+  if (classification.workType === "block_activation" && classification.blockId) {
+    handlers?.onStatus?.("applying");
+    const result = await sandboxClient.applyPatches(projectId, {
+      patches: [],
+      blockId: classification.blockId,
+    });
+    handlers?.onStatus?.("building");
+
+    const appliedPaths = result.patches.map((patch) => patch.path);
+    const appliedLabels = result.patches.map(
+      (patch) => `${patch.action} ${patch.path}`,
+    );
+    const reply = buildAgentTurnReply(
+      result.workType,
+      result.patches.length,
+      result.buildOutput,
+      appliedLabels,
+      result.buildFailed,
+      result.buildError,
+    );
+
+    return {
+      ...result,
+      classification,
+      reply,
+      appliedPaths,
+      aiProvider: "deterministic" as const,
+    };
+  }
+
+  if (isGeminiConfigured()) {
+    const agentResult = await runBuilderAgent({
+      prompt,
+      projectId,
+      customerId,
+      sandboxClient,
+      recentMessages,
+      onToken: handlers?.onToken,
+      onStatus: handlers?.onStatus,
+      onEvent: handlers?.onEvent,
+    });
+
+    return {
+      workType: agentResult.workType,
+      patches: agentResult.patches,
+      buildOutput: agentResult.buildOutput,
+      buildFailed: agentResult.buildFailed,
+      buildError: agentResult.buildError,
+      manifestUpdates: agentResult.manifestUpdates,
+      classification,
+      reply: agentResult.reply,
+      appliedPaths: agentResult.appliedPaths,
+      aiProvider: "gemini" as const,
+      plan: agentResult.plan,
+    };
+  }
+
+  // Template fallback when Vertex/Gemini is not configured.
   const sandboxContext = await sandboxClient.getContext(projectId);
+  const protectedPaths = sandboxContext.protectedPaths.length
+    ? sandboxContext.protectedPaths
+    : DEFAULT_PROTECTED_PATHS;
 
   const plan = await planPatches({
     prompt,
     scaffoldRoot: "/workspace",
-    protectedPaths: sandboxContext.protectedPaths.length
-      ? sandboxContext.protectedPaths
-      : DEFAULT_PROTECTED_PATHS,
+    protectedPaths,
     context: {
       fileTree: sandboxContext.fileTree,
       editableFiles: sandboxContext.editableFiles,
       manifest: sandboxContext.manifest,
-      recentMessages: [],
-      protectedPaths: sandboxContext.protectedPaths.length
-        ? sandboxContext.protectedPaths
-        : DEFAULT_PROTECTED_PATHS,
+      recentMessages,
+      protectedPaths,
     },
     existingPaths: sandboxContext.fileTree,
     onToken: handlers?.onToken,
     onStatus: handlers?.onStatus,
-    llmGenerate: isOpenRouterConfigured()
-      ? async (userPrompt, context, llmHandlers) =>
-          generatePatchesWithOpenRouter({
-            prompt: userPrompt,
-            context,
-            customerId,
-            endpoint: "agent-turn",
-            onToken: llmHandlers?.onToken,
-          })
-      : undefined,
+    llmGenerate: undefined,
   });
 
   handlers?.onStatus?.("applying");
@@ -202,7 +263,9 @@ async function runAgentTurn(
   handlers?.onStatus?.("building");
 
   const appliedPaths = result.patches.map((patch) => patch.path);
-  const appliedLabels = result.patches.map((patch) => `${patch.action} ${patch.path}`);
+  const appliedLabels = result.patches.map(
+    (patch) => `${patch.action} ${patch.path}`,
+  );
   const reply = buildAgentTurnReply(
     result.workType,
     result.patches.length,
@@ -217,7 +280,7 @@ async function runAgentTurn(
     classification,
     reply,
     appliedPaths,
-    aiProvider: isOpenRouterConfigured() ? "openrouter" : "template",
+    aiProvider: "template" as const,
   };
 }
 
@@ -342,6 +405,19 @@ app.post("/api/projects/:id/agent-turn/stream", requireProjectAccess, async (req
     const turn = await runAgentTurn(req.projectId!, prompt, req, {
       onToken: (delta) => writeSseEvent(res, "token", { delta }),
       onStatus: (phase) => writeSseEvent(res, "status", { phase }),
+      onEvent: (event) => {
+        if (event.type === "plan") {
+          writeSseEvent(res, "plan", { plan: event.plan });
+        } else if (event.type === "tool") {
+          writeSseEvent(res, "tool", {
+            name: event.name,
+            args: event.args,
+            result: event.result,
+            error: event.error,
+          });
+        }
+        // status/token are already forwarded via onStatus/onToken
+      },
     });
 
     await addMessage({ projectId: req.projectId!, role: "assistant", content: turn.reply });
@@ -356,6 +432,7 @@ app.post("/api/projects/:id/agent-turn/stream", requireProjectAccess, async (req
       buildError: turn.buildError,
       classification: turn.classification,
       aiProvider: turn.aiProvider,
+      ...("plan" in turn && turn.plan ? { plan: turn.plan } : {}),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -378,7 +455,7 @@ app.get("/api/usage", async (req, res) => {
   res.json({
     customerId,
     customerType: "builder",
-    openRouterConfigured: isOpenRouterConfigured(),
+    geminiConfigured: isGeminiConfigured(),
     usage,
   });
 });

@@ -27,6 +27,8 @@ BOOTSTRAP_ROLES=(
   roles/iam.workloadIdentityPoolAdmin
   roles/resourcemanager.projectIamAdmin
   roles/serviceusage.serviceUsageAdmin
+  # Local smoke of Vertex Gemini (builder agent) via this SA's JSON key / ADC
+  roles/aiplatform.user
 )
 
 print_org_policy_help() {

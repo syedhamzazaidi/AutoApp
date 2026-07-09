@@ -39,5 +39,7 @@ variable "roles" {
     "roles/dns.admin",
     "roles/storage.admin",
     "roles/secretmanager.admin",
+    # Local / CI smoke of Vertex Gemini (builder agent) via github-deploy ADC key
+    "roles/aiplatform.user",
   ]
 }

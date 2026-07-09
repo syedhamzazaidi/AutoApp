@@ -2,7 +2,17 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildContext, buildEditableFileContents } from "./context.js";
+import { buildContext, buildEditableFileContents, isEditablePath } from "./context.js";
+
+describe("isEditablePath", () => {
+  it("allows editable prefixes and rejects others", () => {
+    expect(isEditablePath("src/pages/Index.tsx")).toBe(true);
+    expect(isEditablePath("src/components/Button.tsx")).toBe(true);
+    expect(isEditablePath("src/services/api.ts")).toBe(true);
+    expect(isEditablePath("package.json")).toBe(false);
+    expect(isEditablePath("src/features/auth/AuthProvider.tsx")).toBe(false);
+  });
+});
 
 describe("buildEditableFileContents", () => {
   let root = "";

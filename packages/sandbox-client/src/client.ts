@@ -5,6 +5,7 @@ import type {
   SandboxClient,
   SandboxClientOptions,
   SandboxContext,
+  SandboxFileContent,
   SandboxHealth,
   SandboxManifestResponse,
 } from "./types.js";
@@ -41,7 +42,9 @@ export function createSandboxClient(options: SandboxClientOptions): SandboxClien
     const url = `${baseUrl}${path}`;
     const method = init.method ?? "GET";
     const body = typeof init.body === "string" ? init.body : "";
-    const auth = signSandboxRequest(options.authSecret, projectId, method, path, body);
+    // HMAC covers pathname only; query strings (e.g. ?path=) are not part of the signature.
+    const signPath = path.includes("?") ? path.slice(0, path.indexOf("?")) : path;
+    const auth = signSandboxRequest(options.authSecret, projectId, method, signPath, body);
 
     const headers = new Headers(init.headers);
     headers.set(SANDBOX_AUTH_HEADERS.timestamp, auth.timestamp);
@@ -73,6 +76,18 @@ export function createSandboxClient(options: SandboxClientOptions): SandboxClien
         throw new Error(`Sandbox context fetch failed (${res.status})`);
       }
       return res.json() as Promise<SandboxContext>;
+    },
+
+    async readFile(projectId: string, path: string): Promise<SandboxFileContent> {
+      const res = await signedFetch(
+        projectId,
+        `/api/file?path=${encodeURIComponent(path)}`,
+      );
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Sandbox readFile failed (${res.status}): ${text}`);
+      }
+      return res.json() as Promise<SandboxFileContent>;
     },
 
     async getManifest(projectId: string): Promise<SandboxManifestResponse> {

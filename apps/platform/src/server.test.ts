@@ -5,6 +5,19 @@ import * as agentCore from "@app/agent-core";
 process.env.BUILDER_AUTH_DISABLED = "1";
 process.env.VITEST = "true";
 process.env.SANDBOX_AUTH_SECRET = "test-secret";
+process.env.GEMINI_DISABLED = "1";
+
+const isGeminiConfiguredMock = vi.fn(() => false);
+const runBuilderAgentMock = vi.fn();
+
+vi.mock("@app/ai-gateway", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@app/ai-gateway")>();
+  return {
+    ...actual,
+    isGeminiConfigured: () => isGeminiConfiguredMock(),
+    runBuilderAgent: (...args: unknown[]) => runBuilderAgentMock(...args),
+  };
+});
 
 vi.mock("@app/sandbox-client", () => ({
   createSandboxClient: () => ({
@@ -14,6 +27,10 @@ vi.mock("@app/sandbox-client", () => ({
       editableFiles: {},
       manifest: { blocks: {} },
       protectedPaths: [],
+    }),
+    readFile: vi.fn().mockResolvedValue({
+      path: "src/pages/Index.tsx",
+      content: "export default function Index() { return null; }",
     }),
     applyPatches: vi.fn().mockResolvedValue({
       workType: "block_activation",
@@ -152,5 +169,69 @@ describe("platform server auth", () => {
     expect(text).toContain("TS2322");
     expect(text).toContain('"appliedPaths":["src/pages/Broken.tsx"]');
     expect(text).not.toContain("event: error");
+  });
+
+  it("streams plan and tool SSE events from the Gemini builder agent", async () => {
+    const plan = {
+      goal: "Add a settings page",
+      steps: ["inspect", "apply", "finish"],
+      filesToTouch: ["src/pages/Settings.tsx"],
+      notes: "mock plan",
+    };
+
+    isGeminiConfiguredMock.mockReturnValueOnce(true);
+    runBuilderAgentMock.mockImplementationOnce(async (options: {
+      onEvent?: (event: {
+        type: string;
+        plan?: typeof plan;
+        name?: string;
+        args?: Record<string, unknown>;
+        result?: unknown;
+      }) => void;
+      onStatus?: (phase: string) => void;
+    }) => {
+      options.onStatus?.("planning");
+      options.onEvent?.({ type: "plan", plan });
+      options.onStatus?.("applying");
+      options.onEvent?.({
+        type: "tool",
+        name: "inspect_project",
+        args: {},
+        result: { fileTree: ["src/pages/Index.tsx"] },
+      });
+      options.onEvent?.({
+        type: "tool",
+        name: "finish",
+        args: { summary: "Added settings page" },
+        result: { ok: true },
+      });
+      options.onStatus?.("building");
+      return {
+        workType: "feature_generation",
+        patches: [{ path: "src/pages/Settings.tsx", content: "export default function Settings() {}", action: "create" }],
+        appliedPaths: ["src/pages/Settings.tsx"],
+        reply: "Added settings page",
+        plan,
+        buildFailed: false,
+      };
+    });
+
+    const res = await fetch(`${baseUrl}/api/projects/${projectId}/agent-turn/stream`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: "Add a settings page" }),
+    });
+
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toContain("event: plan");
+    expect(text).toContain('"goal":"Add a settings page"');
+    expect(text).toContain("event: tool");
+    expect(text).toContain('"name":"inspect_project"');
+    expect(text).toContain('"name":"finish"');
+    expect(text).toContain("event: done");
+    expect(text).toContain('"aiProvider":"gemini"');
+    expect(text).toContain("Added settings page");
+    expect(runBuilderAgentMock).toHaveBeenCalled();
   });
 });

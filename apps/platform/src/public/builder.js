@@ -8,6 +8,7 @@ const AGENT_TYPING_ID = "agent-typing-indicator";
 const AGENT_STREAMING_ID = "agent-streaming-message";
 const AGENT_PHASE_LABELS = {
   planning: "Planning changes…",
+  executing: "Running agent tools…",
   applying: "Applying patches…",
   building: "Running build…",
 };

@@ -63,6 +63,13 @@ resource "google_project_iam_member" "platform_secret_accessor" {
   member  = "serviceAccount:${google_service_account.platform.email}"
 }
 
+# Platform SA: Vertex AI (Gemini) for the builder agent.
+resource "google_project_iam_member" "platform_aiplatform_user" {
+  project = var.project_id
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.platform.email}"
+}
+
 # Sandbox SA: minimal — Artifact Registry reader for image pulls (if using WI on sandbox pods).
 resource "google_project_iam_member" "sandbox_artifact_reader" {
   project = var.project_id

@@ -2,7 +2,12 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import type { AgentMessage, BlocksManifest } from "@app/shared";
 
-const EDITABLE_PREFIXES = ["src/pages/", "src/components/", "src/services/"];
+export const EDITABLE_PREFIXES = ["src/pages/", "src/components/", "src/services/"] as const;
+
+export function isEditablePath(filePath: string): boolean {
+  const normalized = filePath.replace(/\\/g, "/");
+  return EDITABLE_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+}
 
 export interface ProjectContext {
   fileTree: string[];
@@ -48,7 +53,7 @@ export function buildEditableFileContents(
   const contents: Record<string, string> = {};
 
   for (const rel of fileTree) {
-    if (!EDITABLE_PREFIXES.some((prefix) => rel.startsWith(prefix))) {
+    if (!isEditablePath(rel)) {
       continue;
     }
 
